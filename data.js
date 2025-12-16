@@ -12,13 +12,63 @@ const projectData = {
             mezzanine: ["Phòng Ngủ 2", "Phòng Ngủ 3", "Tắm & WC"]
         }
     },
-    budget: [
-        // The 'amount' property is now removed and will be calculated dynamically.
-        { category: "Xây thô", color: "#0d6efd", desc: "Toàn bộ kết cấu, móng, sàn, tường, và nhân công thô." },
-        { category: "Hoàn thiện", color: "#198754", desc: "Gạch ốp lát, sơn, hệ thống điện nước, chống thấm." },
-        { category: "Nội thất", color: "#ffc107", desc: "Cửa, cổng, lan can, tủ bếp và các hạng mục nội thất cố định." },
-        { category: "Thiết bị", color: "#dc3545", desc: "Thiết bị vệ sinh, bồn nước, máy bơm." },
-        { category: "Chi phí khác", color: "#6c757d", desc: "Chi phí thiết kế, xin phép, và dự phòng phát sinh." }
+    estimate: [
+        {
+            category: "Xây thô",
+            color: "#0d6efd",
+            desc: "Toàn bộ kết cấu, móng, sàn, tường, và nhân công thô.",
+            items: [
+                { id: 1, item: "Bê tông & Cốt thép (Móng, Sàn, Cột)", unit: "m3/kg", quantity: 1, unitPrice: 200000000 },
+                { id: 2, item: "Gạch xây Tường (100/200)", unit: "viên", quantity: 18000, unitPrice: 1500 },
+                { id: 3, item: "Cát, Đá, Xi măng (Xây trát)", unit: "m3/bao", quantity: 1, unitPrice: 35000000 },
+                { id: 4, item: "Nhân công Xây thô (trọn gói)", unit: "m2", quantity: 162.5, unitPrice: 2000000 },
+            ]
+        },
+        {
+            category: "Hoàn thiện",
+            color: "#198754",
+            desc: "Gạch ốp lát, sơn, hệ thống điện nước, chống thấm.",
+            items: [
+                { id: 5, item: "Gạch Lát Sàn (80x80 P. Khách/Bếp)", unit: "m2", quantity: 60, unitPrice: 320000 },
+                { id: 6, item: "Gạch Lát/Ốp WC (30x60)", unit: "m2", quantity: 45, unitPrice: 250000 },
+                { id: 7, item: "Sơn Nước (Nội thất - 2 lớp màu, 1 lót)", unit: "m2", quantity: 380, unitPrice: 65000 },
+                { id: 8, item: "Sơn Nước (Ngoại thất - 2 lớp màu, 1 lót)", unit: "m2", quantity: 80, unitPrice: 75000 },
+                { id: 9, item: "Hệ thống điện (Dây, công tắc, ổ cắm)", unit: "trọn gói", quantity: 1, unitPrice: 40000000 },
+                { id: 10, item: "Hệ thống nước (Ống, phụ kiện)", unit: "trọn gói", quantity: 1, unitPrice: 20000000 },
+                { id: 11, item: "Chống thấm WC & Sàn", unit: "m2", quantity: 45, unitPrice: 150000 },
+            ]
+        },
+        {
+            category: "Nội thất",
+            color: "#ffc107",
+            desc: "Cửa, cổng, lan can, tủ bếp và các hạng mục nội thất cố định.",
+            items: [
+                { id: 12, item: "Cổng Rào Sắt Hộp (2 cánh, sơn tĩnh điện)", unit: "m2", quantity: 10, unitPrice: 2500000 },
+                { id: 13, item: "Lan Can Cầu Thang (Kính cường lực 10mm)", unit: "m dài", quantity: 7, unitPrice: 1500000 },
+                { id: 14, item: "Tủ Bếp Dưới (Gỗ công nghiệp cơ bản)", unit: "m dài", quantity: 3, unitPrice: 5000000 },
+                { id: 15, item: "Cửa Chính (Thép vân gỗ/Nhôm XF)", unit: "bộ", quantity: 1, unitPrice: 15000000 },
+                { id: 16, item: "Cửa Phòng Ngủ (Gỗ công nghiệp HDF)", unit: "bộ", quantity: 3, unitPrice: 4500000 },
+            ]
+        },
+        {
+            category: "Thiết bị",
+            color: "#dc3545",
+            desc: "Thiết bị vệ sinh, bồn nước, máy bơm.",
+            items: [
+                { id: 17, item: "Bồn Cầu (3 bộ)", unit: "bộ", quantity: 3, unitPrice: 2500000 },
+                { id: 18, item: "Lavabo & Vòi (3 bộ)", unit: "bộ", quantity: 3, unitPrice: 1500000 },
+                { id: 19, item: "Máy Bơm, Bồn nước (1000L)", unit: "bộ", quantity: 1, unitPrice: 6000000 },
+            ]
+        },
+        {
+            category: "Chi phí khác",
+            color: "#6c757d",
+            desc: "Chi phí thiết kế, xin phép, và dự phòng phát sinh.",
+            items: [
+                { id: 20, item: "Chi phí Thiết kế, Giấy phép", unit: "trọn gói", quantity: 1, unitPrice: 21000000 },
+                { id: 21, item: "Chi phí Dự phòng", unit: "trọn gói", quantity: 1, unitPrice: 100000000 },
+            ]
+        }
     ],
     schedule: [
         {
@@ -116,27 +166,4 @@ const projectData = {
         { title: "Mặt Tiền", loc: "Ngoại thất", desc: "Thiết kế phẳng, cửa sổ kính lớn, mảng ốp trang trí.", reason: "Tạo khối hiện đại, lấy sáng tối đa.", icon: "🏢" },
         { title: "Cổng & Sân", loc: "Phía trước", desc: "Cổng sắt hộp sơn tĩnh điện (Đen/Xám), Sân lát gạch chống trơn.", reason: "An ninh, chi phí tối ưu, bền bỉ.", icon: "🚧" }
     ],
-    detailedEstimate: [
-        { id: 1, category: "Xây thô", item: "Bê tông & Cốt thép (Móng, Sàn, Cột)", unit: "m3/kg", quantity: 1, unitPrice: 200000000 },
-        { id: 2, category: "Xây thô", item: "Gạch xây Tường (100/200)", unit: "viên", quantity: 18000, unitPrice: 1500 },
-        { id: 3, category: "Xây thô", item: "Cát, Đá, Xi măng (Xây trát)", unit: "m3/bao", quantity: 1, unitPrice: 35000000 },
-        { id: 4, category: "Xây thô", item: "Nhân công Xây thô (trọn gói)", unit: "m2", quantity: 162.5, unitPrice: 2000000 },
-        { id: 5, category: "Hoàn thiện", item: "Gạch Lát Sàn (80x80 P. Khách/Bếp)", unit: "m2", quantity: 60, unitPrice: 320000 },
-        { id: 6, category: "Hoàn thiện", item: "Gạch Lát/Ốp WC (30x60)", unit: "m2", quantity: 45, unitPrice: 250000 },
-        { id: 7, category: "Hoàn thiện", item: "Sơn Nước (Nội thất - 2 lớp màu, 1 lót)", unit: "m2", quantity: 380, unitPrice: 65000 },
-        { id: 8, category: "Hoàn thiện", item: "Sơn Nước (Ngoại thất - 2 lớp màu, 1 lót)", unit: "m2", quantity: 80, unitPrice: 75000 },
-        { id: 9, category: "Hoàn thiện", item: "Hệ thống điện (Dây, công tắc, ổ cắm)", unit: "trọn gói", quantity: 1, unitPrice: 40000000 },
-        { id: 10, category: "Hoàn thiện", item: "Hệ thống nước (Ống, phụ kiện)", unit: "trọn gói", quantity: 1, unitPrice: 20000000 },
-        { id: 11, category: "Hoàn thiện", item: "Chống thấm WC & Sàn", unit: "m2", quantity: 45, unitPrice: 150000 },
-        { id: 12, category: "Nội thất", item: "Cổng Rào Sắt Hộp (2 cánh, sơn tĩnh điện)", unit: "m2", quantity: 10, unitPrice: 2500000 },
-        { id: 13, category: "Nội thất", item: "Lan Can Cầu Thang (Kính cường lực 10mm)", unit: "m dài", quantity: 7, unitPrice: 1500000 },
-        { id: 14, category: "Nội thất", item: "Tủ Bếp Dưới (Gỗ công nghiệp cơ bản)", unit: "m dài", quantity: 3, unitPrice: 5000000 },
-        { id: 15, category: "Nội thất", item: "Cửa Chính (Thép vân gỗ/Nhôm XF)", unit: "bộ", quantity: 1, unitPrice: 15000000 },
-        { id: 16, category: "Nội thất", item: "Cửa Phòng Ngủ (Gỗ công nghiệp HDF)", unit: "bộ", quantity: 3, unitPrice: 4500000 },
-        { id: 17, category: "Thiết bị", item: "Bồn Cầu (3 bộ)", unit: "bộ", quantity: 3, unitPrice: 2500000 },
-        { id: 18, category: "Thiết bị", item: "Lavabo & Vòi (3 bộ)", unit: "bộ", quantity: 3, unitPrice: 1500000 },
-        { id: 19, category: "Thiết bị", item: "Máy Bơm, Bồn nước (1000L)", unit: "bộ", quantity: 1, unitPrice: 6000000 },
-        { id: 20, category: "Chi phí khác", item: "Chi phí Thiết kế, Giấy phép", unit: "trọn gói", quantity: 1, unitPrice: 21000000 },
-        { id: 21, category: "Chi phí khác", item: "Chi phí Dự phòng", unit: "trọn gói", quantity: 1, unitPrice: 100000000 },
-    ]
 };

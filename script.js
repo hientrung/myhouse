@@ -1,107 +1,80 @@
-// --- Data Store ---
-// The projectData object is now in data.js
-
 // --- State Management ---
-let currentTab = 'overview'; // Default tab for immediate view
+let currentTab = 'overview';
 let currentFilter = 'all';
 let sortColumn = 'id';
 let sortDirection = 'asc';
-// Removed filterActive state
-
-// --- Navigation Logic ---
-const navItems = [
-    { id: 'overview', label: 'Tổng Quan' },
-    { id: 'budget', label: 'Dự Toán Tổng' },
-    { id: 'detailed_estimate', label: 'Dự Toán Vật tư Chi tiết' },
-    { id: 'schedule', label: 'Tiến Độ & Nghiệm Thu' },
-    { id: 'checklist', label: 'Hướng Dẫn Giám Sát' },
-    { id: 'design', label: 'Thiết Kế & Vật Tư' }
-];
-
-function switchTab(tabId) {
-    currentTab = tabId;
-    initNav();
-    renderContent();
-}
-
-function initNav() {
-    const container = document.getElementById('nav-container');
-    container.innerHTML = navItems.map(item => `
-        <button 
-            onclick="switchTab('${item.id}')"
-            class="nav-link text-nowrap py-3 px-2 border-bottom border-2 ${currentTab === item.id ? 'active text-primary border-primary' : 'border-transparent text-muted'}"
-        >
-            ${item.label}
-        </button>
-    `).join('');
-}
+let budgetChart;
 
 // --- Utility Functions ---
 function formatVND(amount) {
-    // Using toLocaleString for better formatting
     return amount.toLocaleString('vi-VN') + ' VND';
 }
 
-function getUniqueCategories() {
-    const categories = projectData.detailedEstimate.map(item => item.category);
-    return ['all', ...new Set(categories)];
+/**
+ * DATA TRANSFORMATION FUNCTIONS
+ */
+
+// New function to calculate budget from the new `estimate` structure
+function getCalculatedBudget() {
+    return projectData.estimate.map(category => {
+        const totalAmount = category.items.reduce((sum, item) => {
+            return sum + (item.quantity * item.unitPrice);
+        }, 0);
+        return {
+            ...category, // category, color, desc
+            amount: totalAmount
+        };
+    });
 }
 
-// --- Filter and Sort Logic for Detailed Estimate ---
-function filterEstimate(category) {
-    currentFilter = category;
-    renderContent();
-}
-
-function sortEstimate(column) {
-    if (sortColumn === column) {
-        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
-    } else {
-        sortColumn = column;
-        sortDirection = 'asc';
-    }
-    renderContent();
-}
-
+// Updated to work with the new `estimate` structure
 function getSortedAndFilteredData() {
-    let data = projectData.detailedEstimate;
+    // Flatten the nested items from the estimate structure and add category info to each item
+    const allItems = projectData.estimate.flatMap(category =>
+        category.items.map(item => ({
+            ...item,
+            category: category.category
+        }))
+    );
 
-    // 1. Filter
+    let data = [...allItems];
+
+    // Filter by category
     if (currentFilter !== 'all') {
         data = data.filter(item => item.category === currentFilter);
     }
 
-    // 2. Sort
+    // Sort data
     data.sort((a, b) => {
-        const valA = a[sortColumn];
-        const valB = b[sortColumn];
+        let aValue = a[sortColumn];
+        let bValue = b[sortColumn];
 
-        // Improved sorting logic
-        const isNumeric = sortColumn === 'id' || sortColumn === 'quantity' || sortColumn === 'unitPrice' || sortColumn === 'total';
-
-        let comparison = 0;
-        if (isNumeric) {
-            comparison = valA - valB;
-        } else {
-            // Fallback for string comparison
-            const strA = String(valA || '').toLowerCase();
-            const strB = String(valB || '').toLowerCase();
-            if (strA > strB) comparison = 1;
-            if (strA < strB) comparison = -1;
+        // Special handling for total column
+        if (sortColumn === 'total') {
+            aValue = a.quantity * a.unitPrice;
+            bValue = b.quantity * b.unitPrice;
         }
 
-        return sortDirection === 'asc' ? comparison : -comparison;
+        if (aValue < bValue) {
+            return sortDirection === 'asc' ? -1 : 1;
+        }
+        if (aValue > bValue) {
+            return sortDirection === 'asc' ? 1 : -1;
+        }
+        return 0;
     });
 
     return data;
 }
 
 
-// --- Render Functions ---
+/**
+ * RENDER FUNCTIONS
+ */
 
+// --- Render Functions ---
 function renderContent() {
     const content = document.getElementById('app-content');
-    // Bootstrap's fade class handles the animation
     content.className = 'fade-in';
 
     switch (currentTab) {
@@ -183,35 +156,15 @@ function renderOverview() {
     `;
 }
 
-function getCalculatedBudget() {
-    // Create a map to store calculated totals for each category from detailedEstimate
-    const categoryTotals = new Map();
-
-    projectData.detailedEstimate.forEach(item => {
-        const currentTotal = categoryTotals.get(item.category) || 0;
-        categoryTotals.set(item.category, currentTotal + (item.quantity * item.unitPrice));
-    });
-
-    // Map the template budget data with the dynamically calculated amounts
-    const calculatedBudget = projectData.budget.map(budgetItem => {
-        return {
-            ...budgetItem,
-            amount: categoryTotals.get(budgetItem.category) || 0
-        };
-    });
-
-    return calculatedBudget;
-}
-
-function renderBudget() {
-    const budgetData = getCalculatedBudget();
-    const totalBudget = budgetData.reduce((sum, item) => sum + item.amount, 0);
+const renderBudget = () => {
+    const calculatedBudget = getCalculatedBudget();
+    const totalBudget = calculatedBudget.reduce((sum, item) => sum + item.amount, 0);
 
     return `
         <div class="row g-4">
             <div class="col-12">
                 <h2 class="h3 fw-bold text-dark">Phân Bổ Ngân Sách Tổng</h2>
-                <p class="text-muted">Tổng ngân sách cố định ${formatVND(totalBudget)} được phân bổ chi tiết theo các hạng mục chính. Dữ liệu được tính toán tự động từ "Dự toán Vật tư Chi tiết".</p>
+                <p class="text-muted">Tổng ngân sách cố định ${formatVND(totalBudget)} được phân bổ chi tiết theo các hạng mục chính.</p>
             </div>
 
             <!-- Chart Section -->
@@ -243,7 +196,7 @@ function renderBudget() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    ${budgetData.map(item => `
+                                    ${calculatedBudget.map(item => `
                                         <tr class="border-bottom">
                                             <td class="py-3 px-3">
                                                 <div class="d-flex align-items-center">
@@ -270,133 +223,87 @@ function renderBudget() {
             </div>
         </div>
     `;
-}
+};
 
-function initBudgetChart() {
-    const budgetData = getCalculatedBudget();
-    const ctx = document.getElementById('budgetChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: budgetData.map(b => b.category),
-            datasets: [{
-                data: budgetData.map(b => b.amount),
-                backgroundColor: budgetData.map(b => b.color),
-                borderWidth: 0,
-                hoverOffset: 4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    callbacks: {
-                        label: function (context) {
-                            let label = context.label || '';
-                            if (label) { label += ': '; }
-                            if (context.parsed !== null) {
-                                label += formatVND(context.parsed);
-                            }
-                            return label;
-                        }
-                    }
-                }
-            }
-        }
-    });
-}
-
-function renderDetailedEstimate() {
-    const categories = getUniqueCategories();
+const renderDetailedEstimate = () => {
     const data = getSortedAndFilteredData();
-    const grandTotal = data.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+    const categories = ['all', ...projectData.estimate.map(c => c.category)];
+    const totalCost = data.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
 
-    const renderTableHeaders = () => {
-        const headers = [
-            { key: 'id', label: '#', class: 'col-1' },
-            { key: 'category', label: 'Hạng Mục', class: 'col-2' },
-            { key: 'item', label: 'Vật Tư/Chi Phí', class: 'col-3' },
-            { key: 'unit', label: 'ĐVT', class: 'col-1 text-center' },
-            { key: 'quantity', label: 'SL', class: 'col-1 text-end' },
-            { key: 'unitPrice', label: 'Đơn Giá (VND)', class: 'col-2 text-end' },
-            { key: 'total', label: 'Thành Tiền (VND)', class: 'col-2 text-end' },
-        ];
-
-        return headers.map(header => {
-            const isCurrent = sortColumn === header.key;
-            const sortIcon = isCurrent ? (sortDirection === 'asc' ? '▲' : '▼') : '↕';
-            const headerClasses = header.class || '';
-
-            return `
-                <th onclick="sortEstimate('${header.key}')" 
-                    class="py-3 px-3 small fw-semibold text-muted bg-white" style="cursor: pointer;">
-                    <div class="d-flex align-items-center ${headerClasses.includes('text-end') ? 'justify-content-end' : ''}">
-                        ${header.label}
-                        <span class="ms-1 small ${isCurrent ? 'text-primary' : 'text-light-emphasis'}">${sortIcon}</span>
-                    </div>
-                </th>
-            `;
-        }).join('');
+    const getSortIcon = (key) => {
+        const isCurrent = sortColumn === key;
+        const sortIcon = isCurrent ? (sortDirection === 'asc' ? '▲' : '▼') : '↕';
+        return sortIcon;
     };
 
     return `
-        <div class="mb-4">
-            <h2 class="h3 fw-bold text-dark">Dự Toán Vật Tư và Chi Phí Chi Tiết</h2>
-            <p class="text-muted mt-2">Dự toán này cung cấp chi tiết ước tính về khối lượng và chi phí đơn lẻ cho các vật tư và hạng mục chính. Hãy sử dụng bộ lọc bên dưới để khám phá.</p>
+        <div class="col-12">
+            <h2 class="h3 fw-bold text-dark">Dự Toán Vật Tư & Chi Phí Chi Tiết</h2>
+            <p class="text-muted">Xem chi tiết từng vật tư và chi phí trong dự toán xây dựng, với khả năng lọc và sắp xếp theo nhu cầu.</p>
         </div>
-        
-        <!-- Filter Controls -->
-        <div class="d-flex flex-row flex-wrap align-items-center gap-2 mb-4 p-3 card shadow-sm">
-            <span class="small fw-medium text-muted me-2">Lọc theo Hạng mục:</span>
-            ${categories.map(cat => `
-                <button onclick="filterEstimate('${cat}')" 
-                    class="btn btn-sm rounded-pill ${currentFilter === cat
-            ? 'btn-primary'
-            : 'btn-light'}">
-                    ${cat === 'all' ? 'Tất cả' : cat}
-                </button>
-            `).join('')}
-        </div>
-
-        <!-- Scrollable Table Container -->
-        <div class="card shadow-lg">
-            <div class="scrollable-table-container">
-                <table id="estimate-table" class="table table-hover table-sm align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            ${renderTableHeaders()}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${data.map(item => `
-                            <tr class="small">
-                                <td class="py-2 px-3 text-muted">${item.id}</td>
-                                <td class="py-2 px-3 fw-medium text-primary-emphasis">${item.category}</td>
-                                <td class="py-2 px-3 text-dark">${item.item}</td>
-                                <td class="py-2 px-3 text-muted text-center">${item.unit}</td>
-                                <td class="py-2 px-3 font-monospace text-secondary text-end">${item.quantity.toLocaleString('vi-VN')}</td>
-                                <td class="py-2 px-3 font-monospace text-secondary text-end">${formatVND(item.unitPrice)}</td>
-                                <td class="py-2 px-3 fw-bold text-dark text-end">${formatVND(item.quantity * item.unitPrice)}</td>
+        <div class="card col-12">
+            <div class="card-body">              
+                <!-- Filter Controls -->
+                <div class="d-flex flex-row flex-wrap align-items-center gap-2 mb-4">
+                    <span class="small fw-medium text-muted me-2">Lọc theo Hạng mục:</span>
+                    ${categories.map(cat => `
+                        <button onclick="filterEstimate('${cat}')" 
+                            class="btn btn-sm rounded-pill ${currentFilter === cat ? 'btn-primary' : 'btn-light'}">
+                            ${cat === 'all' ? 'Tất cả' : cat}
+                        </button>
+                    `).join('')}
+                </div>
+                
+                <div class="table-responsive">
+                    <table id="estimate-table" class="table table-hover table-sm align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th onclick="sortEstimate('id')" class="py-3 px-3 small fw-semibold text-muted" style="cursor: pointer;">
+                                    # <span class="ms-1 small ${sortColumn === 'id' ? 'text-primary' : 'text-light-emphasis'}">${getSortIcon('id')}</span>
+                                </th>
+                                <th onclick="sortEstimate('category')" class="py-3 px-3 small fw-semibold text-muted" style="cursor: pointer;">
+                                    Hạng Mục <span class="ms-1 small ${sortColumn === 'category' ? 'text-primary' : 'text-light-emphasis'}">${getSortIcon('category')}</span>
+                                </th>
+                                <th onclick="sortEstimate('item')" class="py-3 px-3 small fw-semibold text-muted" style="cursor: pointer;">
+                                    Vật Tư/Chi Phí <span class="ms-1 small ${sortColumn === 'item' ? 'text-primary' : 'text-light-emphasis'}">${getSortIcon('item')}</span>
+                                </th>
+                                <th class="py-3 px-3 small fw-semibold text-muted text-center">ĐVT</th>
+                                <th onclick="sortEstimate('quantity')" class="py-3 px-3 small fw-semibold text-muted text-end" style="cursor: pointer;">
+                                    SL <span class="ms-1 small ${sortColumn === 'quantity' ? 'text-primary' : 'text-light-emphasis'}">${getSortIcon('quantity')}</span>
+                                </th>
+                                <th onclick="sortEstimate('unitPrice')" class="py-3 px-3 small fw-semibold text-muted text-end" style="cursor: pointer;">
+                                    Đơn Giá (VND) <span class="ms-1 small ${sortColumn === 'unitPrice' ? 'text-primary' : 'text-light-emphasis'}">${getSortIcon('unitPrice')}</span>
+                                </th>
+                                <th onclick="sortEstimate('total')" class="py-3 px-3 small fw-semibold text-muted text-end" style="cursor: pointer;">
+                                    Thành Tiền (VND) <span class="ms-1 small ${sortColumn === 'total' ? 'text-primary' : 'text-light-emphasis'}">${getSortIcon('total')}</span>
+                                </th>
                             </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Footer Total -->
-            <div class="card-footer p-3 d-flex justify-content-end">
-                <div class="text-end">
-                    <p class="small text-muted mb-0">Tổng cộng (Theo Bộ lọc):</p>
-                    <p class="h5 fw-bold text-primary">${formatVND(grandTotal)}</p>
-                    <p class="small text-muted mt-1" style="font-size: 0.75rem;">Lưu ý: Ngân sách tổng 900 triệu VND bao gồm cả dự phòng và các chi phí khác.</p>
+                        </thead>
+                        <tbody>
+                            ${data.map(item => `
+                                <tr class="small">
+                                    <td class="py-2 px-3 text-muted">${item.id}</td>
+                                    <td class="py-2 px-3 fw-medium text-primary-emphasis">${item.category}</td>
+                                    <td class="py-2 px-3 text-dark">${item.item}</td>
+                                    <td class="py-2 px-3 text-muted text-center">${item.unit}</td>
+                                    <td class="py-2 px-3 font-monospace text-secondary text-end">${item.quantity.toLocaleString('vi-VN')}</td>
+                                    <td class="py-2 px-3 font-monospace text-secondary text-end">${formatVND(item.unitPrice)}</td>
+                                    <td class="py-2 px-3 fw-bold text-dark text-end">${formatVND(item.quantity * item.unitPrice)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr class="fw-bold">
+                                <td colspan="6" class="py-3 px-3 text-end">Tổng Cộng:</td>
+                                <td class="py-3 px-3 text-primary text-end">${formatVND(totalCost)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>
     `;
-}
-
+};
 
 function renderSchedule() {
     const groupedSchedule = projectData.schedule;
@@ -413,23 +320,23 @@ function renderSchedule() {
                 <div class="border-start position-absolute top-0 bottom-0" style="left: 1.5rem; z-index: 0;"></div>
                 
                 ${groupedSchedule.map((item, index) => {
-        const milestoneNumber = index + 1;
+                    const milestoneNumber = index + 1;
 
-        const taskList = item.tasks.map(task => `
+                    const taskList = item.tasks.map(task => `
                         <li class="d-flex align-items-start mb-1">
                             <span class="text-primary me-2 mt-1 small">•</span>
                             <span>${task}</span>
                         </li>
                     `).join('');
 
-        const inspectionList = item.inspections.map(inspection => `
+                    const inspectionList = item.inspections.map(inspection => `
                         <li class="d-flex align-items-start mb-1">
                             <span class="text-success me-2 mt-1 small">✓</span>
                             <span>${inspection}</span>
                         </li>
                     `).join('');
 
-        return `
+                    return `
                         <div class="position-relative mb-5 fade-in" style="animation-delay: ${index * 0.05}s">
                             
                             <!-- Phase Dot -->
@@ -480,12 +387,11 @@ function renderSchedule() {
                             </div>
                         </div>
                     `;
-    }).join('')}
+                }).join('')}
             </div>
         </div>
     `;
 }
-
 
 function renderChecklist() {
     const parentId = "checklistAccordion";
@@ -561,6 +467,122 @@ function renderDesign() {
     `;
 }
 
+const initBudgetChart = () => {
+    const ctx = document.getElementById('budgetChart');
+    if (!ctx) return;
+
+    const calculatedBudget = getCalculatedBudget();
+
+    if (budgetChart) {
+        budgetChart.destroy();
+    }
+
+    budgetChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: calculatedBudget.map(item => item.category),
+            datasets: [{
+                data: calculatedBudget.map(item => item.amount),
+                backgroundColor: calculatedBudget.map(item => item.color),
+                borderWidth: 2,
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: function (context) {
+                            let label = context.label || '';
+                            if (label) { label += ': '; }
+                            if (context.parsed !== null) {
+                                label += formatVND(context.parsed);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            }
+        }
+    });
+}
+
+// --- Event Handlers ---
+function switchTab(tabId) {
+    currentTab = tabId;
+    updateActiveTab();
+    renderContent();
+}
+
+function updateActiveTab() {
+    document.querySelectorAll('#nav-container .nav-link').forEach(btn => {
+        const btnTabId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
+        if (btnTabId === currentTab) {
+            btn.classList.add('active', 'text-primary', 'border-primary');
+            btn.classList.remove('border-transparent', 'text-muted');
+        } else {
+            btn.classList.remove('active', 'text-primary', 'border-primary');
+            btn.classList.add('border-transparent', 'text-muted');
+        }
+    });
+}
+
+function filterEstimate(category) {
+    currentFilter = category;
+    const content = document.getElementById('app-content');
+    content.innerHTML = renderDetailedEstimate();
+}
+
+function sortEstimate(column) {
+    if (sortColumn === column) {
+        sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+    } else {
+        sortColumn = column;
+        sortDirection = 'asc';
+    }
+    const content = document.getElementById('app-content');
+    content.innerHTML = renderDetailedEstimate();
+}
+
+// --- Navigation Logic ---
+const navItems = [
+    { id: 'overview', label: 'Tổng Quan' },
+    { id: 'budget', label: 'Dự Toán Tổng' },
+    { id: 'detailed_estimate', label: 'Dự Toán Chi Tiết' },
+    { id: 'schedule', label: 'Tiến Độ & Nghiệm Thu' },
+    { id: 'checklist', label: 'Hướng Dẫn Giám Sát' },
+    { id: 'design', label: 'Thiết Kế & Vật Tư' }
+];
+
+function initNav() {
+    const container = document.getElementById('nav-container');
+    container.innerHTML = navItems.map(item => `
+        <button 
+            onclick="switchTab('${item.id}')"
+            class="nav-link text-nowrap py-3 px-2 border-bottom border-2 ${currentTab === item.id ? 'active text-primary border-primary' : 'border-transparent text-muted'}"
+        >
+            ${item.label}
+        </button>
+    `).join('');
+}
+
 // --- Initialization ---
 initNav();
 renderContent();
+updateTotalBudgetDisplay();
+
+// Update total budget display in header
+function updateTotalBudgetDisplay() {
+    const calculatedBudget = getCalculatedBudget();
+    const totalBudget = calculatedBudget.reduce((sum, item) => sum + item.amount, 0);
+    // Round up to nearest 10 million
+    const roundedBudget = Math.ceil(totalBudget / 10000000) * 10000000;
+    const displayText = `💰 ${(roundedBudget / 1000000).toLocaleString('vi-VN')} Triệu VND`;
+    const displayElement = document.getElementById('total-budget-display');
+    if (displayElement) {
+        displayElement.textContent = displayText;
+    }
+}
