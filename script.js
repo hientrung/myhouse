@@ -10,7 +10,10 @@ const DOM = {
     appContent: null,
     navContainer: null,
     totalBudgetDisplay: null,
-    totalWeeksDisplay: null
+    totalWeeksDisplay: null,
+    mobileMenu: null,
+    mobileMenuOverlay: null,
+    mobileMenuItems: null
 };
 
 // --- Constants ---
@@ -29,6 +32,9 @@ function initDOMCache() {
     DOM.navContainer = document.getElementById('nav-container');
     DOM.totalBudgetDisplay = document.getElementById('total-budget-display');
     DOM.totalWeeksDisplay = document.getElementById('total-weeks-display');
+    DOM.mobileMenu = document.getElementById('mobile-menu');
+    DOM.mobileMenuOverlay = document.getElementById('mobile-menu-overlay');
+    DOM.mobileMenuItems = document.getElementById('mobile-menu-items');
 }
 
 /**
@@ -226,7 +232,7 @@ const renderBudget = () => {
             <div class="col-lg-8">
                  <div class="card shadow-sm h-100">
                     <div class="card-body p-4">
-                        <div class="table-responsive">
+                        <div class="table-responsive-md">
                             <table class="table table-borderless align-middle">
                                 <thead>
                                     <tr class="border-bottom">
@@ -238,22 +244,22 @@ const renderBudget = () => {
                                 <tbody>
                                     ${calculatedBudget.map(item => `
                                         <tr class="border-bottom">
-                                            <td class="py-3 px-3">
+                                            <td class="py-3 px-3" data-label="Hạng Mục">
                                                 <div class="d-flex align-items-center">
                                                     <div class="flex-shrink-0 rounded-circle me-2" style="width: 12px; height: 12px; background-color: ${item.color}"></div>
                                                     <span class="fw-medium text-dark small">${item.category}</span>
                                                 </div>
                                             </td>
-                                            <td class="py-3 px-3 text-end font-monospace text-secondary small">${formatVND(item.amount)}</td>
-                                            <td class="py-3 px-3 text-muted small">${item.desc}</td>
+                                            <td class="py-3 px-3 text-end font-monospace text-secondary small" data-label="Ngân Sách (VND)">${formatVND(item.amount)}</td>
+                                            <td class="py-3 px-3 text-muted small" data-label="Chi Tiết Phạm Vi">${item.desc}</td>
                                         </tr>
                                     `).join('')}
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-light">
-                                        <td class="py-3 px-3 fw-bold text-dark">Tổng Cộng</td>
-                                        <td class="py-3 px-3 text-end fw-bold text-primary">${formatVND(totalBudget)}</td>
-                                        <td></td>
+                                        <td class="py-3 px-3 fw-bold text-dark" data-label="Tổng Cộng">Tổng Cộng</td>
+                                        <td class="py-3 px-3 text-end fw-bold text-primary" data-label="Tổng">${formatVND(totalBudget)}</td>
+                                        <td data-label=""></td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -294,7 +300,7 @@ const renderDetailedEstimate = () => {
                     `).join('')}
                 </div>
                 
-                <div class="table-responsive">
+                <div class="table-responsive-md">
                     <table id="estimate-table" class="table table-hover table-sm align-middle">
                         <thead class="table-light">
                             <tr>
@@ -322,20 +328,20 @@ const renderDetailedEstimate = () => {
                         <tbody>
                             ${data.map(item => `
                                 <tr class="small">
-                                    <td class="py-2 px-3 text-muted">${item.id}</td>
-                                    <td class="py-2 px-3 fw-medium text-primary-emphasis">${item.category}</td>
-                                    <td class="py-2 px-3 text-dark">${item.item}</td>
-                                    <td class="py-2 px-3 text-muted text-center">${item.unit}</td>
-                                    <td class="py-2 px-3 font-monospace text-secondary text-end">${item.quantity.toLocaleString('vi-VN')}</td>
-                                    <td class="py-2 px-3 font-monospace text-secondary text-end">${formatVND(item.unitPrice)}</td>
-                                    <td class="py-2 px-3 fw-bold text-dark text-end">${formatVND(item.quantity * item.unitPrice)}</td>
+                                    <td class="py-2 px-3 text-muted" data-label="#">${item.id}</td>
+                                    <td class="py-2 px-3 fw-medium text-primary-emphasis" data-label="Hạng Mục">${item.category}</td>
+                                    <td class="py-2 px-3 text-dark" data-label="Vật Tư/Chi Phí">${item.item}</td>
+                                    <td class="py-2 px-3 text-muted text-center" data-label="ĐVT">${item.unit}</td>
+                                    <td class="py-2 px-3 font-monospace text-secondary text-end" data-label="SL">${item.quantity.toLocaleString('vi-VN')}</td>
+                                    <td class="py-2 px-3 font-monospace text-secondary text-end" data-label="Đơn Giá">${formatVND(item.unitPrice)}</td>
+                                    <td class="py-2 px-3 fw-bold text-dark text-end" data-label="Thành Tiền">${formatVND(item.quantity * item.unitPrice)}</td>
                                 </tr>
                             `).join('')}
                         </tbody>
                         <tfoot class="table-light">
                             <tr class="fw-bold">
-                                <td colspan="6" class="py-3 px-3 text-end">Tổng Cộng:</td>
-                                <td class="py-3 px-3 text-primary text-end">${formatVND(totalCost)}</td>
+                                <td colspan="6" class="py-3 px-3 text-end" data-label="Tổng Cộng">Tổng Cộng:</td>
+                                <td class="py-3 px-3 text-primary text-end" data-label="Tổng">${formatVND(totalCost)}</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -591,15 +597,28 @@ const initBudgetChart = () => {
 }
 
 // --- Event Handlers ---
+function toggleMobileMenu() {
+    if (!DOM.mobileMenu || !DOM.mobileMenuOverlay) return;
+    
+    DOM.mobileMenu.classList.toggle('active');
+    DOM.mobileMenuOverlay.classList.toggle('active');
+}
+
 function switchTab(tabId) {
     currentTab = tabId;
     updateActiveTab();
     renderContent();
+    
+    // Đóng mobile menu sau khi chọn tab
+    if (DOM.mobileMenu && DOM.mobileMenu.classList.contains('active')) {
+        toggleMobileMenu();
+    }
 }
 
 function updateActiveTab() {
     if (!DOM.navContainer) return;
     
+    // Update desktop nav
     const navLinks = DOM.navContainer.querySelectorAll('.nav-link');
     navLinks.forEach(btn => {
         const btnTabId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
@@ -610,6 +629,15 @@ function updateActiveTab() {
         btn.classList.toggle('border-transparent', !isActive);
         btn.classList.toggle('text-muted', !isActive);
     });
+    
+    // Update mobile menu
+    if (DOM.mobileMenuItems) {
+        const mobileLinks = DOM.mobileMenuItems.querySelectorAll('.mobile-menu-item');
+        mobileLinks.forEach(link => {
+            const linkTabId = link.getAttribute('onclick').match(/'([^']+)'/)[1];
+            link.classList.toggle('active', linkTabId === currentTab);
+        });
+    }
 }
 
 function filterEstimate(category) {
@@ -642,16 +670,30 @@ const navItems = [
 ];
 
 function initNav() {
-    if (!DOM.navContainer) return;
+    // Desktop navigation
+    if (DOM.navContainer) {
+        DOM.navContainer.innerHTML = navItems.map(item => `
+            <button 
+                onclick="switchTab('${item.id}')"
+                class="nav-link text-nowrap py-3 px-2 border-bottom border-2 ${currentTab === item.id ? 'active text-primary border-primary' : 'border-transparent text-muted'}"
+            >
+                ${item.label}
+            </button>
+        `).join('');
+    }
     
-    DOM.navContainer.innerHTML = navItems.map(item => `
-        <button 
-            onclick="switchTab('${item.id}')"
-            class="nav-link text-nowrap py-3 px-2 border-bottom border-2 ${currentTab === item.id ? 'active text-primary border-primary' : 'border-transparent text-muted'}"
-        >
-            ${item.label}
-        </button>
-    `).join('');
+    // Mobile menu
+    if (DOM.mobileMenuItems) {
+        DOM.mobileMenuItems.innerHTML = navItems.map(item => `
+            <a 
+                href="#" 
+                onclick="event.preventDefault(); switchTab('${item.id}')"
+                class="mobile-menu-item ${currentTab === item.id ? 'active' : ''}"
+            >
+                ${item.label}
+            </a>
+        `).join('');
+    }
 }
 
 // Update total budget display in header
