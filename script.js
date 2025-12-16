@@ -137,6 +137,10 @@ function renderOverview() {
     const formatDate = (date) => date.toLocaleDateString(VND_LOCALE, DATE_FORMAT_OPTIONS);
     
     return `
+        <div class="mb-4">
+            <h2 class="h3 fw-bold text-dark">Tổng Quan Dự Án</h2>
+            <p class="text-muted">Thông tin chi tiết về kích thước, bố trí công năng và các thông số kỹ thuật của dự án.</p>
+        </div>
         <div class="row g-4">
             <!-- Project Specs -->
             <div class="col-lg-6">
@@ -197,11 +201,11 @@ const renderBudget = () => {
     const totalBudget = calculatedBudget.reduce((sum, item) => sum + item.amount, 0);
 
     return `
+        <div class="mb-4">
+            <h2 class="h3 fw-bold text-dark">Phân Bổ Ngân Sách Tổng</h2>
+            <p class="text-muted">Tổng ngân sách ${formatVND(totalBudget)} được phân bổ chi tiết theo các hạng mục chính.</p>
+        </div>
         <div class="row g-4">
-            <div class="col-12">
-                <h2 class="h3 fw-bold text-dark">Phân Bổ Ngân Sách Tổng</h2>
-                <p class="text-muted">Tổng ngân sách ${formatVND(totalBudget)} được phân bổ chi tiết theo các hạng mục chính.</p>
-            </div>
 
             <!-- Chart Section -->
             <div class="col-lg-4">
@@ -273,11 +277,11 @@ const renderDetailedEstimate = () => {
     };
 
     return `
-        <div class="col-12">
+        <div class="mb-4">
             <h2 class="h3 fw-bold text-dark">Dự Toán Vật Tư & Chi Phí Chi Tiết</h2>
             <p class="text-muted">Xem chi tiết từng vật tư và chi phí trong dự toán xây dựng, với khả năng lọc và sắp xếp theo nhu cầu.</p>
         </div>
-        <div class="card col-12">
+        <div class="card">
             <div class="card-body">              
                 <!-- Filter Controls -->
                 <div class="d-flex flex-row flex-wrap align-items-center gap-2 mb-4">
@@ -372,9 +376,9 @@ function renderSchedule() {
 
     return `
         <div>
-            <div class="mb-5">
+            <div class="mb-4">
                 <h2 class="h3 fw-bold text-dark">Lộ Trình Thi Công ${totalWeeks} Tuần</h2>
-                <p class="text-muted mt-2">Tiến độ được chia thành ${groupedSchedule.length} Giai đoạn chính. Theo dõi công việc của Nhà thầu và yêu cầu nghiệm thu để đảm bảo chất lượng.</p>
+                <p class="text-muted">Tiến độ được chia thành ${groupedSchedule.length} Giai đoạn chính. Theo dõi công việc của Nhà thầu và yêu cầu nghiệm thu để đảm bảo chất lượng.</p>
                 <div class="alert alert-info d-flex align-items-center gap-3 mt-3">
                     <span class="fs-5">📅</span>
                     <div>
@@ -468,16 +472,20 @@ function renderSchedule() {
 function renderChecklist() {
     const parentId = "checklistAccordion";
     return `
+        <div class="mb-4">
+            <h2 class="h3 fw-bold text-dark">Hướng Dẫn Giám Sát Công Trình</h2>
+            <p class="text-muted">Checklist chi tiết để kiểm tra chất lượng công trình qua từng giai đoạn thi công.</p>
+        </div>
         <div class="row g-5">
             <div class="col-md-6">
-                 <h2 class="h4 fw-bold text-dark mb-2">Giai đoạn Thô</h2>
+                 <h3 class="h5 fw-bold text-dark mb-2">Giai đoạn Thô</h3>
                  <p class="text-muted mb-4 small">Kiểm tra kết cấu và vật tư đầu vào quan trọng.</p>
                  <div class="accordion" id="${parentId}Materials">
                     ${projectData.checklist.materials.map((item, index) => createChecklistItem(item, `${parentId}Materials`, index)).join('')}
                  </div>
             </div>
             <div class="col-md-6">
-                 <h2 class="h4 fw-bold text-dark mb-2">Giai đoạn Hoàn Thiện</h2>
+                 <h3 class="h5 fw-bold text-dark mb-2">Giai đoạn Hoàn Thiện</h3>
                  <p class="text-muted mb-4 small">Kiểm tra thẩm mỹ và công năng sử dụng.</p>
                  <div class="accordion" id="${parentId}Finishing">
                     ${projectData.checklist.finishing.map((item, index) => createChecklistItem(item, `${parentId}Finishing`, index)).join('')}
@@ -515,9 +523,9 @@ function createChecklistItem(item, parentId, index) {
 
 function renderDesign() {
     return `
-        <div class="mb-4 text-center">
+        <div class="mb-4">
             <h2 class="h3 fw-bold text-dark">Thiết Kế & Vật Tư Chọn Lọc</h2>
-            <p class="text-muted mt-2">Các quyết định thiết kế chủ chốt để đạt được phong cách Hiện đại & Tinh tế.</p>
+            <p class="text-muted">Các quyết định thiết kế chủ chốt để đạt được phong cách Hiện đại & Tinh tế.</p>
         </div>
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
             ${projectData.design.map(item => `
