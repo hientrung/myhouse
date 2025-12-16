@@ -1,149 +1,8 @@
 // --- Data Store ---
-const projectData = {
-    overview: {
-        specs: [
-            { label: "Kích thước Đất", value: "5m x 10.165m (Nở hậu 8.48m)" },
-            { label: "Địa điểm", value: "TP. Vĩnh Long" },
-            { label: "Phong cách", value: "Hiện đại, Tinh tế" },
-            { label: "Ngân sách", value: "900.000.000 VND (Cố định)" },
-            { label: "Thời gian", value: "4.5 tháng (18 tuần)" }
-        ],
-        layout: {
-            ground: ["Sân trước & Cổng rào", "Nhà Xe", "Phòng Khách + Bếp (Không gian mở)", "Phòng Ngủ 1", "Tắm & WC"],
-            mezzanine: ["Phòng Ngủ 2", "Phòng Ngủ 3", "Tắm & WC"]
-        }
-    },
-    budget: [
-        { category: "Xây thô & Nhân công", amount: 568750000, color: "#3b82f6", desc: "Kết cấu móng, bê tông, xây tường, mái, nhân công." },
-        { category: "Hoàn thiện Cơ bản", amount: 227500000, color: "#10b981", desc: "Gạch ốp lát, sơn nước, ốp tường rào." },
-        { category: "Nội thất & TB Cố định", amount: 30000000, color: "#f59e0b", desc: "Tủ bếp dưới, lan can cầu thang, cổng rào sắt hộp." },
-        { category: "Thiết kế/Xin phép", amount: 28750000, color: "#8b5cf6", desc: "Hồ sơ thiết kế 3D, kỹ thuật, giấy phép." },
-        { category: "Dự phòng/Phát sinh", amount: 10000000, color: "#ef4444", desc: "Chi phí dự phòng cho các thay đổi nhỏ." }
-    ],
-    // DỮ LIỆU ĐÃ CẬP NHẬT: Chia nhỏ thành các Giai đoạn lớn để dễ nhóm lại.
-    schedule: [
-        { phase: "A. Chuẩn bị & Pháp lý", weeks: "1-2", 
-          tasks: [
-            "Hoàn thiện hồ sơ Kỹ thuật, xin cấp phép Xây dựng.", 
-            "Chuẩn bị mặt bằng, định vị móng, lắp đặt điện nước tạm."
-          ],
-          inspections: [
-            "Kiểm tra bản vẽ thiết kế cuối cùng (3D, kỹ thuật) đã được duyệt và Giấy phép Xây dựng hợp lệ từ cơ quan chức năng.", 
-            "Bàn giao mặt bằng."
-          ]
-        },
-        { phase: "B. Xây Thô & Kết Cấu Móng/Sàn 1", weeks: "3-6", 
-          tasks: [
-            "Đào đất, đổ bê tông lót móng. Lắp dựng cốt thép Móng, Đà Kiềng.", 
-            "Đổ bê tông Móng/Đà Kiềng.", 
-            "Xây tường rào/trụ cổng.",
-            "Thi công cốt thép, cốt pha, lắp đặt ống MEP âm cho Cột và Sàn Tầng Trệt/Lửng.", 
-            "Đổ bê tông Cột/Sàn."
-          ], 
-          inspections: [
-            "Kiểm tra chủng loại và đường kính Thép (so sánh với CO/CQ).", 
-            "Kiểm tra cao độ và kích thước Hố móng, đảm bảo đúng theo Bản vẽ thiết kế. (Nghiệm thu trước khi đổ bê tông Móng)",
-            "Kiểm tra Thép Sàn, vị trí và độ kín của Đường ống Điện/Nước âm sàn. (Nghiệm thu trước khi đổ bê tông Sàn)"
-          ]
-        },
-        { phase: "C. Xây Tường & Trát", weeks: "7-13", 
-          tasks: [
-            "Xây tường bao và tường ngăn phòng (tường 100/200).", 
-            "Xây cầu thang bộ. Lắp dựng hệ kết cấu mái (nếu có).",
-            "Lắp đặt toàn bộ hệ thống Điện/Nước (âm tường). Chống thấm sàn WC, ban công, mái.", 
-            "Trát tường nội thất.",
-            "Trát tường ngoại thất và hoàn thiện trát tường rào."
-          ], 
-          inspections: [
-            "Kiểm tra độ thẳng đứng, độ phẳng của tường xây bằng dây dọi.",
-            "Kiểm tra kích thước ô cửa chính xác theo thiết kế.",
-            "Thử Áp lực nước (5-7 bar trong 24h, đồng hồ không giảm).",
-            "Ngâm nước Chống Thấm (24h) không bị rò rỉ.",
-            "Kiểm tra tổng thể độ phẳng và góc cạnh của lớp trát. Gõ nhẹ tìm vị trí bị bộp/rỗng."
-          ]
-        },
-        { phase: "D. Hoàn Thiện & Lắp Đặt TB", weeks: "14-17", 
-          tasks: [
-            "Lắp đặt Gạch Ốp Lát sàn, tường WC.", 
-            "Lắp đặt hệ thống cửa, lan can cầu thang, cổng rào.", 
-            "Bả Matít/Sơn lót.",
-            "Sơn hoàn thiện (màu sắc chính thức).",
-            "Lắp đặt thiết bị vệ sinh, thiết bị điện (đèn, công tắc, ổ cắm).",
-            "Lắp đặt tủ bếp dưới."
-          ], 
-          inspections: [
-            "Dùng búa cao su gõ kiểm tra độ rỗng (bộp) của gạch ốp lát.",
-            "Kiểm tra độ khít, bản lề, khóa của Cửa/Cổng.",
-            "Kiểm tra vật liệu sơn bả đúng chủng loại.",
-            "Kiểm tra màu sơn, độ mịn. Bật điện/mở nước kiểm tra hoạt động của tất cả thiết bị."
-          ]
-        },
-        { phase: "E. Bàn Giao", weeks: "18", 
-          tasks: [
-            "Vệ sinh công nghiệp toàn bộ công trình.", 
-            "Sửa chữa các lỗi nhỏ cuối cùng."
-          ], 
-          inspections: [
-            "Nghiệm thu tổng thể (Visual inspection) về thẩm mỹ, độ sạch.", 
-            "Ký biên bản bàn giao và thanh toán lần cuối theo hợp đồng."
-          ]
-        }
-    ],
-    checklist: {
-        materials: [
-            { item: "Thép", method: "Kiểm tra tem nhãn, nhãn mác (Hòa Phát, Việt Nhật...). Dùng thước kẹp đo đường kính (ví dụ phi 10mm).", tools: "Thước kẹp, Hợp đồng" },
-            { item: "Móng & Bê tông", method: "Kiểm tra Con kê đúng vị trí/chiều dày. Yêu cầu lấy mẫu bê tông tươi để nén thử mác.", tools: "Thước cuộn, Giấy CO/CQ" },
-            { item: "Hệ thống Nước", method: "Thử Áp lực 5-7 bar trong 24h. Đồng hồ không giảm áp là đạt.", tools: "Đồng hồ đo áp lực" },
-            { item: "Bảo dưỡng Bê tông", method: "Quan sát tưới nước 2-3 lần/ngày trong 7 ngày đầu.", tools: "Quan sát mắt thường" }
-        ],
-        finishing: [
-            { item: "Trát/Xây", method: "Dùng dây dọi kiểm tra thẳng đứng. Dùng thước 2m kiểm tra độ phẳng.", tools: "Dây dọi, Thước nivo, Thước 2m" },
-            { item: "Chống Thấm", method: "Ngâm nước cao 5cm trong 24h. Kiểm tra rò rỉ tầng dưới.", tools: "Ghi chép" },
-            { item: "Ốp Lát", method: "Dùng búa cao su gõ hình caro. Tiếng 'bộp' là rỗng keo/vữa.", tools: "Búa cao su" },
-            { item: "Sơn Nước", method: "Kiểm tra dưới ánh sáng tự nhiên và đèn điện. Tìm vết loang, bọt khí.", tools: "Đèn pin" },
-            { item: "Cửa & Cổng", method: "Đóng mở thử nghiệm. Kiểm tra bản lề, khóa, gioăng.", tools: "Tay" }
-        ]
-    },
-    design: [
-        { title: "Gạch Lát Sàn", loc: "P. Khách/Bếp", desc: "Gạch Porcelein 80x80cm, Màu Xám Nhạt/Vân Mây.", reason: "Tạo không gian mở, liền mạch và sang trọng.", icon: "⬜" },
-        { title: "Cầu Thang", loc: "Lối lên Lầu 1", desc: "Mặt bậc gỗ/đá, Lan can kính cường lực 10mm.", reason: "Giúp tầng trệt thoáng, hiện đại, không nặng nề.", icon: "↗️" },
-        { title: "Ánh Sáng", loc: "Toàn nhà", desc: "Đèn Downlight âm trần, LED hắt khe (Vàng/Trung tính).", reason: "Ánh sáng dịu, tối giản, nhấn mạnh đường nét.", icon: "💡" },
-        { title: "Cửa Phòng Ngủ", loc: "3 Phòng", desc: "Gỗ công nghiệp cánh phẳng (Vân gỗ nhạt/Trắng).", reason: "Tối giản, hiện đại, cách âm tốt.", icon: "🚪" },
-        { title: "Mặt Tiền", loc: "Ngoại thất", desc: "Thiết kế phẳng, cửa sổ kính lớn, mảng ốp trang trí.", reason: "Tạo khối hiện đại, lấy sáng tối đa.", icon: "🏢" },
-        { title: "Cổng & Sân", loc: "Phía trước", desc: "Cổng sắt hộp sơn tĩnh điện (Đen/Xám), Sân lát gạch chống trơn.", reason: "An ninh, chi phí tối ưu, bền bỉ.", icon: "🚧" }
-    ],
-    detailedEstimate: [
-        // Xây Thô & Nhân công (Tương đương 162.5 m2 x ~3.5 triệu/m2)
-        { id: 1, category: "Xây thô", item: "Bê tông & Cốt thép (Móng, Sàn, Cột)", unit: "m3/kg", quantity: 1, unitPrice: 200000000, total: 200000000 },
-        { id: 2, category: "Xây thô", item: "Gạch xây Tường (100/200)", unit: "viên", quantity: 18000, unitPrice: 1500, total: 27000000 },
-        { id: 3, category: "Xây thô", item: "Cát, Đá, Xi măng (Xây trát)", unit: "m3/bao", quantity: 1, unitPrice: 35000000, total: 35000000 },
-        { id: 4, category: "Xây thô", item: "Nhân công Xây thô (trọn gói)", unit: "m2", quantity: 162.5, unitPrice: 2000000, total: 325000000 },
-        // Hoàn thiện Cơ bản
-        { id: 5, category: "Hoàn thiện", item: "Gạch Lát Sàn (80x80 P. Khách/Bếp)", unit: "m2", quantity: 60, unitPrice: 320000, total: 19200000 },
-        { id: 6, category: "Hoàn thiện", item: "Gạch Lát/Ốp WC (30x60)", unit: "m2", quantity: 45, unitPrice: 250000, total: 11250000 },
-        { id: 7, category: "Hoàn thiện", item: "Sơn Nước (Nội thất - 2 lớp màu, 1 lót)", unit: "m2", quantity: 380, unitPrice: 65000, total: 24700000 },
-        { id: 8, category: "Hoàn thiện", item: "Sơn Nước (Ngoại thất - 2 lớp màu, 1 lót)", unit: "m2", quantity: 80, unitPrice: 75000, total: 6000000 },
-        { id: 9, category: "Hoàn thiện", item: "Hệ thống điện (Dây, công tắc, ổ cắm)", unit: "trọn gói", quantity: 1, unitPrice: 40000000, total: 40000000 },
-        { id: 10, category: "Hoàn thiện", item: "Hệ thống nước (Ống, phụ kiện)", unit: "trọn gói", quantity: 1, unitPrice: 20000000, total: 20000000 },
-        { id: 11, category: "Hoàn thiện", item: "Chống thấm WC & Sàn", unit: "m2", quantity: 45, unitPrice: 150000, total: 6750000 },
-        // Nội thất & TB Cố định
-        { id: 12, category: "Nội thất", item: "Cổng Rào Sắt Hộp (2 cánh, sơn tĩnh điện)", unit: "m2", quantity: 10, unitPrice: 2500000, total: 25000000 },
-        { id: 13, category: "Nội thất", item: "Lan Can Cầu Thang (Kính cường lực 10mm)", unit: "m dài", quantity: 7, unitPrice: 1500000, total: 10500000 },
-        { id: 14, category: "Nội thất", item: "Tủ Bếp Dưới (Gỗ công nghiệp cơ bản)", unit: "m dài", quantity: 3, unitPrice: 5000000, total: 15000000 },
-        { id: 15, category: "Nội thất", item: "Cửa Chính (Thép vân gỗ/Nhôm XF)", unit: "bộ", quantity: 1, unitPrice: 15000000, total: 15000000 },
-        { id: 16, category: "Nội thất", item: "Cửa Phòng Ngủ (Gỗ công nghiệp HDF)", unit: "bộ", quantity: 3, unitPrice: 4500000, total: 13500000 },
-        // Thiết bị
-        { id: 17, category: "Thiết bị", item: "Bồn Cầu (3 bộ)", unit: "bộ", quantity: 3, unitPrice: 2500000, total: 7500000 },
-        { id: 18, category: "Thiết bị", item: "Lavabo & Vòi (3 bộ)", unit: "bộ", quantity: 3, unitPrice: 1500000, total: 4500000 },
-        { id: 19, category: "Thiết bị", item: "Máy Bơm, Bồn nước (1000L)", unit: "bộ", quantity: 1, unitPrice: 6000000, total: 6000000 },
-        // Chi phí Khác
-        { id: 20, category: "Chi phí khác", item: "Chi phí Thiết kế, Giấy phép", unit: "trọn gói", quantity: 1, unitPrice: 28750000, total: 28750000 },
-        { id: 21, category: "Chi phí khác", item: "Chi phí Dự phòng", unit: "trọn gói", quantity: 1, unitPrice: 10000000, total: 10000000 },
-    ]
-};
+// The projectData object is now in data.js
 
 // --- State Management ---
-let currentTab = 'schedule'; // Default to Schedule tab for immediate view
+let currentTab = 'overview'; // Default tab for immediate view
 let currentFilter = 'all';
 let sortColumn = 'id';
 let sortDirection = 'asc';
@@ -170,7 +29,7 @@ function initNav() {
     container.innerHTML = navItems.map(item => `
         <button 
             onclick="switchTab('${item.id}')"
-            class="nav-item whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm hover:text-sky-600 transition-colors ${currentTab === item.id ? 'active' : 'border-transparent text-slate-500'}"
+            class="nav-link text-nowrap py-3 px-2 border-bottom border-2 ${currentTab === item.id ? 'active text-primary border-primary' : 'border-transparent text-muted'}"
         >
             ${item.label}
         </button>
@@ -206,7 +65,7 @@ function sortEstimate(column) {
 
 function getSortedAndFilteredData() {
     let data = projectData.detailedEstimate;
-    
+
     // 1. Filter
     if (currentFilter !== 'all') {
         data = data.filter(item => item.category === currentFilter);
@@ -242,9 +101,10 @@ function getSortedAndFilteredData() {
 
 function renderContent() {
     const content = document.getElementById('app-content');
-    content.className = 'fade-in'; 
-    
-    switch(currentTab) {
+    // Bootstrap's fade class handles the animation
+    content.className = 'fade-in';
+
+    switch (currentTab) {
         case 'overview':
             content.innerHTML = renderOverview();
             break;
@@ -269,45 +129,53 @@ function renderContent() {
 
 function renderOverview() {
     return `
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div class="row g-4">
             <!-- Project Specs -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
-                    <span class="mr-2">📋</span> Thông Số Kỹ Thuật
-                </h2>
-                <p class="text-slate-600 mb-6">Dự án nhà ở gia đình với thiết kế tối ưu hóa công năng cho diện tích đất nở hậu, tập trung vào sự thoáng đãng và tiện nghi.</p>
-                <div class="space-y-4">
-                    ${projectData.overview.specs.map(spec => `
-                        <div class="flex justify-between items-center border-b border-slate-50 pb-2">
-                            <span class="text-slate-500 font-medium">${spec.label}</span>
-                            <span class="text-slate-800 font-semibold text-right">${spec.value}</span>
+            <div class="col-lg-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h2 class="card-title h4 fw-bold text-dark mb-3 d-flex align-items-center">
+                            <span class="me-2">📋</span> Thông Số Kỹ Thuật
+                        </h2>
+                        <p class="card-text text-muted mb-4">Dự án nhà ở gia đình với thiết kế tối ưu hóa công năng cho diện tích đất nở hậu, tập trung vào sự thoáng đãng và tiện nghi.</p>
+                        <div class="d-grid gap-3">
+                            ${projectData.overview.specs.map(spec => `
+                                <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                    <span class="text-muted">${spec.label}</span>
+                                    <span class="fw-semibold text-dark text-end">${spec.value}</span>
+                                </div>
+                            `).join('')}
                         </div>
-                    `).join('')}
+                    </div>
                 </div>
             </div>
 
             <!-- Functional Layout -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
-                <h2 class="text-xl font-bold text-slate-800 mb-4 flex items-center">
-                    <span class="mr-2">📐</span> Bố Trí Công Năng
-                </h2>
-                <p class="text-slate-600 mb-6">Phân chia khu vực sinh hoạt hợp lý, đảm bảo riêng tư cho các phòng ngủ và không gian mở cho khu vực sinh hoạt chung.</p>
-                
-                <div class="mb-6">
-                    <h3 class="text-sm uppercase tracking-wide text-sky-600 font-bold mb-3">Tầng Trệt</h3>
-                    <div class="flex flex-wrap gap-2">
-                        ${projectData.overview.layout.ground.map(item => `
-                            <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-lg text-sm border border-slate-200">${item}</span>
-                        `).join('')}
-                    </div>
-                </div>
+            <div class="col-lg-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <h2 class="card-title h4 fw-bold text-dark mb-3 d-flex align-items-center">
+                            <span class="me-2">📐</span> Bố Trí Công Năng
+                        </h2>
+                        <p class="card-text text-muted mb-4">Phân chia khu vực sinh hoạt hợp lý, đảm bảo riêng tư cho các phòng ngủ và không gian mở cho khu vực sinh hoạt chung.</p>
+                        
+                        <div class="mb-4">
+                            <h3 class="small text-uppercase fw-bold text-primary mb-3">Tầng Trệt</h3>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${projectData.overview.layout.ground.map(item => `
+                                    <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">${item}</span>
+                                `).join('')}
+                            </div>
+                        </div>
 
-                <div>
-                    <h3 class="text-sm uppercase tracking-wide text-sky-600 font-bold mb-3">Lầu 1 (Tầng Lửng)</h3>
-                    <div class="flex flex-wrap gap-2">
-                        ${projectData.overview.layout.mezzanine.map(item => `
-                            <span class="bg-sky-50 text-sky-700 px-3 py-1 rounded-lg text-sm border border-sky-100">${item}</span>
-                        `).join('')}
+                        <div>
+                            <h3 class="small text-uppercase fw-bold text-primary mb-3">Lầu 1 (Tầng Lửng)</h3>
+                            <div class="d-flex flex-wrap gap-2">
+                                ${projectData.overview.layout.mezzanine.map(item => `
+                                    <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle">${item}</span>
+                                `).join('')}
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -315,73 +183,105 @@ function renderOverview() {
     `;
 }
 
+function getCalculatedBudget() {
+    // Create a map to store calculated totals for each category from detailedEstimate
+    const categoryTotals = new Map();
+
+    projectData.detailedEstimate.forEach(item => {
+        const currentTotal = categoryTotals.get(item.category) || 0;
+        categoryTotals.set(item.category, currentTotal + (item.quantity * item.unitPrice));
+    });
+
+    // Map the template budget data with the dynamically calculated amounts
+    const calculatedBudget = projectData.budget.map(budgetItem => {
+        return {
+            ...budgetItem,
+            amount: categoryTotals.get(budgetItem.category) || 0
+        };
+    });
+
+    return calculatedBudget;
+}
+
 function renderBudget() {
-    // Function logic remains the same
+    const budgetData = getCalculatedBudget();
+    const totalBudget = budgetData.reduce((sum, item) => sum + item.amount, 0);
+
     return `
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-3 mb-4">
-                <h2 class="text-2xl font-bold text-slate-800">Phân Bổ Ngân Sách Tổng</h2>
-                <p class="text-slate-600">Tổng ngân sách cố định 900 triệu VND được phân bổ chi tiết theo 5 hạng mục chính. Chi tiết vật tư xem tại tab "Dự toán Vật tư Chi tiết".</p>
+        <div class="row g-4">
+            <div class="col-12">
+                <h2 class="h3 fw-bold text-dark">Phân Bổ Ngân Sách Tổng</h2>
+                <p class="text-muted">Tổng ngân sách cố định ${formatVND(totalBudget)} được phân bổ chi tiết theo các hạng mục chính. Dữ liệu được tính toán tự động từ "Dự toán Vật tư Chi tiết".</p>
             </div>
 
             <!-- Chart Section -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-1 flex flex-col items-center justify-center">
-                <div class="chart-container">
-                    <canvas id="budgetChart"></canvas>
-                </div>
-                <div class="mt-4 text-center">
-                    <span class="text-3xl font-bold text-slate-800">${formatVND(900000000)}</span>
-                    <span class="block text-sm text-slate-500">Tổng Ngân Sách VND</span>
+            <div class="col-lg-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center p-4">
+                        <div class="chart-container">
+                            <canvas id="budgetChart"></canvas>
+                        </div>
+                        <div class="mt-4 text-center">
+                            <span class="h2 fw-bold text-dark">${formatVND(totalBudget)}</span>
+                            <span class="d-block small text-muted">Tổng Ngân Sách VND</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
             <!-- Details Table -->
-            <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 lg:col-span-2 overflow-x-auto">
-                <table class="w-full text-left border-collapse">
-                    <thead>
-                        <tr class="border-b border-slate-200">
-                            <th class="py-3 px-4 text-sm font-semibold text-slate-600">Hạng Mục</th>
-                            <th class="py-3 px-4 text-sm font-semibold text-slate-600 text-right">Ngân Sách (VND)</th>
-                            <th class="py-3 px-4 text-sm font-semibold text-slate-600">Chi Tiết Phạm Vi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${projectData.budget.map(item => `
-                            <tr class="border-b border-slate-50 hover:bg-slate-50 transition-colors">
-                                <td class="py-4 px-4">
-                                    <div class="flex items-center">
-                                        <div class="w-3 h-3 rounded-full mr-2" style="background-color: ${item.color}"></div>
-                                        <span class="font-medium text-slate-800">${item.category}</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-4 text-right font-mono text-slate-700">${formatVND(item.amount)}</td>
-                                <td class="py-4 px-4 text-sm text-slate-500">${item.desc}</td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                    <tfoot>
-                        <tr class="bg-slate-50">
-                            <td class="py-3 px-4 font-bold text-slate-800">Tổng Cộng</td>
-                            <td class="py-3 px-4 text-right font-bold text-sky-600">${formatVND(900000000)}</td>
-                            <td></td>
-                        </tr>
-                    </tfoot>
-                </table>
+            <div class="col-lg-8">
+                 <div class="card shadow-sm h-100">
+                    <div class="card-body p-4">
+                        <div class="table-responsive">
+                            <table class="table table-borderless align-middle">
+                                <thead>
+                                    <tr class="border-bottom">
+                                        <th class="py-3 px-3 small fw-semibold text-muted">Hạng Mục</th>
+                                        <th class="py-3 px-3 small fw-semibold text-muted text-end">Ngân Sách (VND)</th>
+                                        <th class="py-3 px-3 small fw-semibold text-muted">Chi Tiết Phạm Vi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${budgetData.map(item => `
+                                        <tr class="border-bottom">
+                                            <td class="py-3 px-3">
+                                                <div class="d-flex align-items-center">
+                                                    <div class="flex-shrink-0 rounded-circle me-2" style="width: 12px; height: 12px; background-color: ${item.color}"></div>
+                                                    <span class="fw-medium text-dark small">${item.category}</span>
+                                                </div>
+                                            </td>
+                                            <td class="py-3 px-3 text-end font-monospace text-secondary small">${formatVND(item.amount)}</td>
+                                            <td class="py-3 px-3 text-muted small">${item.desc}</td>
+                                        </tr>
+                                    `).join('')}
+                                </tbody>
+                                <tfoot>
+                                    <tr class="bg-light">
+                                        <td class="py-3 px-3 fw-bold text-dark">Tổng Cộng</td>
+                                        <td class="py-3 px-3 text-end fw-bold text-primary">${formatVND(totalBudget)}</td>
+                                        <td></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     `;
 }
 
 function initBudgetChart() {
-    // Function logic remains the same
+    const budgetData = getCalculatedBudget();
     const ctx = document.getElementById('budgetChart').getContext('2d');
     new Chart(ctx, {
         type: 'doughnut',
         data: {
-            labels: projectData.budget.map(b => b.category),
+            labels: budgetData.map(b => b.category),
             datasets: [{
-                data: projectData.budget.map(b => b.amount),
-                backgroundColor: projectData.budget.map(b => b.color),
+                data: budgetData.map(b => b.amount),
+                backgroundColor: budgetData.map(b => b.color),
                 borderWidth: 0,
                 hoverOffset: 4
             }]
@@ -393,7 +293,7 @@ function initBudgetChart() {
                 legend: { display: false },
                 tooltip: {
                     callbacks: {
-                        label: function(context) {
+                        label: function (context) {
                             let label = context.label || '';
                             if (label) { label += ': '; }
                             if (context.parsed !== null) {
@@ -409,35 +309,32 @@ function initBudgetChart() {
 }
 
 function renderDetailedEstimate() {
-    // Function logic remains the same
     const categories = getUniqueCategories();
     const data = getSortedAndFilteredData();
-    const grandTotal = data.reduce((sum, item) => sum + item.total, 0);
+    const grandTotal = data.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
 
     const renderTableHeaders = () => {
         const headers = [
-            { key: 'id', label: '#', class: 'w-10' },
-            { key: 'category', label: 'Hạng Mục', class: 'w-1/6' },
-            { key: 'item', label: 'Vật Tư/Chi Phí' }, 
-            { key: 'unit', label: 'ĐVT', class: 'w-16 text-center' },
-            { key: 'quantity', label: 'SL', class: 'w-16 text-right' },
-            { key: 'unitPrice', label: 'Đơn Giá (VND)', class: 'w-1/6 text-right' },
-            { key: 'total', label: 'Thành Tiền (VND)', class: 'w-1/5 text-right' },
+            { key: 'id', label: '#', class: 'col-1' },
+            { key: 'category', label: 'Hạng Mục', class: 'col-2' },
+            { key: 'item', label: 'Vật Tư/Chi Phí', class: 'col-3' },
+            { key: 'unit', label: 'ĐVT', class: 'col-1 text-center' },
+            { key: 'quantity', label: 'SL', class: 'col-1 text-end' },
+            { key: 'unitPrice', label: 'Đơn Giá (VND)', class: 'col-2 text-end' },
+            { key: 'total', label: 'Thành Tiền (VND)', class: 'col-2 text-end' },
         ];
 
         return headers.map(header => {
             const isCurrent = sortColumn === header.key;
             const sortIcon = isCurrent ? (sortDirection === 'asc' ? '▲' : '▼') : '↕';
-            
-            // FIX LỖI: Thêm kiểm tra phòng vệ: Đảm bảo header.class là chuỗi (chuỗi rỗng nếu undefined)
-            const headerClasses = header.class || ''; 
+            const headerClasses = header.class || '';
 
             return `
                 <th onclick="sortEstimate('${header.key}')" 
-                    class="py-3 px-4 text-sm font-semibold text-slate-600 bg-white cursor-pointer hover:bg-slate-50 transition ${headerClasses}">
-                    <div class="flex items-center ${headerClasses.includes('text-right') ? 'justify-end' : ''}">
+                    class="py-3 px-3 small fw-semibold text-muted bg-white" style="cursor: pointer;">
+                    <div class="d-flex align-items-center ${headerClasses.includes('text-end') ? 'justify-content-end' : ''}">
                         ${header.label}
-                        <span class="ml-1 text-xs ${isCurrent ? 'text-sky-600' : 'text-slate-400'}">${sortIcon}</span>
+                        <span class="ms-1 small ${isCurrent ? 'text-primary' : 'text-light-emphasis'}">${sortIcon}</span>
                     </div>
                 </th>
             `;
@@ -445,44 +342,43 @@ function renderDetailedEstimate() {
     };
 
     return `
-        <div class="mb-6">
-            <h2 class="text-2xl font-bold text-slate-800">Dự Toán Vật Tư và Chi Phí Chi Tiết</h2>
-            <p class="text-slate-600 mt-2">Dự toán này cung cấp chi tiết ước tính về khối lượng và chi phí đơn lẻ cho các vật tư và hạng mục chính. Hãy sử dụng bộ lọc bên dưới để khám phá.</p>
+        <div class="mb-4">
+            <h2 class="h3 fw-bold text-dark">Dự Toán Vật Tư và Chi Phí Chi Tiết</h2>
+            <p class="text-muted mt-2">Dự toán này cung cấp chi tiết ước tính về khối lượng và chi phí đơn lẻ cho các vật tư và hạng mục chính. Hãy sử dụng bộ lọc bên dưới để khám phá.</p>
         </div>
         
         <!-- Filter Controls -->
-        <div class="flex flex-wrap gap-2 mb-6 p-4 bg-white rounded-xl shadow-sm border border-slate-100">
-            <span class="text-sm font-medium text-slate-600 self-center mr-2">Lọc theo Hạng mục:</span>
+        <div class="d-flex flex-row flex-wrap align-items-center gap-2 mb-4 p-3 card shadow-sm">
+            <span class="small fw-medium text-muted me-2">Lọc theo Hạng mục:</span>
             ${categories.map(cat => `
                 <button onclick="filterEstimate('${cat}')" 
-                    class="text-xs px-3 py-1 rounded-full font-medium transition-all
-                    ${currentFilter === cat 
-                        ? 'bg-sky-600 text-white shadow-md' 
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                    class="btn btn-sm rounded-pill ${currentFilter === cat
+            ? 'btn-primary'
+            : 'btn-light'}">
                     ${cat === 'all' ? 'Tất cả' : cat}
                 </button>
             `).join('')}
         </div>
 
         <!-- Scrollable Table Container -->
-        <div class="bg-white rounded-xl shadow-xl border border-slate-100">
+        <div class="card shadow-lg">
             <div class="scrollable-table-container">
-                <table id="estimate-table" class="w-full text-left border-collapse">
-                    <thead>
+                <table id="estimate-table" class="table table-hover table-sm align-middle">
+                    <thead class="table-light">
                         <tr>
                             ${renderTableHeaders()}
                         </tr>
                     </thead>
                     <tbody>
                         ${data.map(item => `
-                            <tr class="border-b border-slate-50 hover:bg-sky-50 transition-colors">
-                                <td class="py-3 px-4 text-xs text-slate-500">${item.id}</td>
-                                <td class="py-3 px-4 font-medium text-sm text-sky-700">${item.category}</td>
-                                <td class="py-3 px-4 text-sm text-slate-800">${item.item}</td>
-                                <td class="py-3 px-4 text-xs text-slate-500 text-center">${item.unit}</td>
-                                <td class="py-3 px-4 text-sm font-mono text-slate-700 text-right">${item.quantity.toLocaleString('vi-VN')}</td>
-                                <td class="py-3 px-4 text-sm font-mono text-slate-700 text-right">${formatVND(item.unitPrice)}</td>
-                                <td class="py-3 px-4 text-sm font-bold text-slate-800 text-right">${formatVND(item.total)}</td>
+                            <tr class="small">
+                                <td class="py-2 px-3 text-muted">${item.id}</td>
+                                <td class="py-2 px-3 fw-medium text-primary-emphasis">${item.category}</td>
+                                <td class="py-2 px-3 text-dark">${item.item}</td>
+                                <td class="py-2 px-3 text-muted text-center">${item.unit}</td>
+                                <td class="py-2 px-3 font-monospace text-secondary text-end">${item.quantity.toLocaleString('vi-VN')}</td>
+                                <td class="py-2 px-3 font-monospace text-secondary text-end">${formatVND(item.unitPrice)}</td>
+                                <td class="py-2 px-3 fw-bold text-dark text-end">${formatVND(item.quantity * item.unitPrice)}</td>
                             </tr>
                         `).join('')}
                     </tbody>
@@ -490,11 +386,11 @@ function renderDetailedEstimate() {
             </div>
 
             <!-- Footer Total -->
-            <div class="p-4 bg-slate-50 rounded-b-xl border-t border-slate-200 flex justify-end">
-                <div class="text-right">
-                    <p class="text-sm text-slate-600">Tổng cộng (Theo Bộ lọc):</p>
-                    <p class="text-xl font-bold text-sky-600">${formatVND(grandTotal)}</p>
-                    <p class="text-xs text-slate-400 mt-1">Lưu ý: Ngân sách tổng 900 triệu VND bao gồm cả dự phòng và các chi phí khác.</p>
+            <div class="card-footer p-3 d-flex justify-content-end">
+                <div class="text-end">
+                    <p class="small text-muted mb-0">Tổng cộng (Theo Bộ lọc):</p>
+                    <p class="h5 fw-bold text-primary">${formatVND(grandTotal)}</p>
+                    <p class="small text-muted mt-1" style="font-size: 0.75rem;">Lưu ý: Ngân sách tổng 900 triệu VND bao gồm cả dự phòng và các chi phí khác.</p>
                 </div>
             </div>
         </div>
@@ -504,81 +400,87 @@ function renderDetailedEstimate() {
 
 function renderSchedule() {
     const groupedSchedule = projectData.schedule;
-    
+
     return `
-        <div class="max-w-4xl mx-auto">
-            <div class="mb-8">
-                <h2 class="text-2xl font-bold text-slate-800">Lộ Trình Thi Công 18 Tuần</h2>
-                <p class="text-slate-600 mt-2">Tiến độ được chia thành 5 Giai đoạn chính. Theo dõi công việc của Nhà thầu và yêu cầu nghiệm thu để đảm bảo chất lượng.</p>
+        <div>
+            <div class="mb-5">
+                <h2 class="h3 fw-bold text-dark">Lộ Trình Thi Công 18 Tuần</h2>
+                <p class="text-muted mt-2">Tiến độ được chia thành 5 Giai đoạn chính. Theo dõi công việc của Nhà thầu và yêu cầu nghiệm thu để đảm bảo chất lượng.</p>
             </div>
 
-            <div class="relative pl-12 space-y-10">
+            <div class="position-relative ps-4">
                 <!-- Vertical Timeline Line -->
-                <div class="timeline-line"></div>
+                <div class="border-start position-absolute top-0 bottom-0" style="left: 1.5rem; z-index: 0;"></div>
                 
                 ${groupedSchedule.map((item, index) => {
-                    const milestoneNumber = index + 1;
-                    
-                    // Map tasks to list items
-                    const taskList = item.tasks.map(task => `
-                        <li class="mb-1 flex items-start">
-                            <span class="text-sky-500 mr-2 mt-1">•</span>
+        const milestoneNumber = index + 1;
+
+        const taskList = item.tasks.map(task => `
+                        <li class="d-flex align-items-start mb-1">
+                            <span class="text-primary me-2 mt-1 small">•</span>
                             <span>${task}</span>
                         </li>
                     `).join('');
-                    
-                    // Map inspections to list items
-                    const inspectionList = item.inspections.map(inspection => `
-                        <li class="mb-1 flex items-start">
-                            <span class="text-amber-500 mr-2 mt-1">✓</span>
+
+        const inspectionList = item.inspections.map(inspection => `
+                        <li class="d-flex align-items-start mb-1">
+                            <span class="text-success me-2 mt-1 small">✓</span>
                             <span>${inspection}</span>
                         </li>
                     `).join('');
 
-                    return `
-                        <div class="schedule-item relative fade-in" style="animation-delay: ${index * 0.05}s">
+        return `
+                        <div class="position-relative mb-5 fade-in" style="animation-delay: ${index * 0.05}s">
                             
                             <!-- Phase Dot -->
-                            <div class="schedule-dot -left-4 top-0">
+                            <div class="position-absolute top-0 start-0 translate-middle d-flex align-items-center justify-content-center fw-bold text-white bg-primary rounded-circle border border-4 border-white shadow-sm" style="width: 2.5rem; height: 2.5rem; z-index: 1;">
                                 ${milestoneNumber}
                             </div>
 
                             <!-- Phase Card -->
-                            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-lg hover:shadow-xl transition-shadow ml-2">
-                                
-                                <!-- Phase Header -->
-                                <div class="mb-5 pb-3 border-b border-sky-100">
-                                    <span class="text-xs font-bold uppercase tracking-wider text-sky-600">${item.phase}</span>
-                                    <h3 class="text-xl font-extrabold text-slate-800 mt-1">Tuần ${item.weeks}</h3>
-                                </div>
-                                
-                                <!-- Tasks and Inspections Grid -->
-                                <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-6 gap-y-4 text-sm">
-                                    
-                                    <!-- Column 1: Contractor Tasks -->
-                                    <div class="bg-slate-50 p-4 rounded-lg border border-slate-100">
-                                        <p class="text-sm font-bold text-slate-700 mb-2 flex items-center">
-                                            <span class="text-2xl mr-2">👷</span> Công việc Nhà thầu:
-                                        </p>
-                                        <ul class="list-none space-y-1 text-slate-600">
-                                            ${taskList}
-                                        </ul>
+                            <div class="card shadow-sm" style="margin-left: 1.5rem;">
+                                <div class="card-body p-4">
+                                    <!-- Phase Header -->
+                                    <div class="mb-4 pb-3 border-bottom">
+                                        <span class="small fw-bold text-uppercase text-primary">${item.phase}</span>
+                                        <h3 class="h5 fw-bolder text-dark mt-1 mb-0">Tuần ${item.weeks}</h3>
                                     </div>
                                     
-                                    <!-- Column 2: Owner Inspection -->
-                                    <div class="bg-amber-50 p-4 rounded-lg border border-amber-100">
-                                        <p class="text-sm font-bold text-amber-700 mb-2 flex items-center">
-                                            <span class="text-2xl mr-2">👁️</span> Yêu cầu Nghiệm thu Chủ nhà:
-                                        </p>
-                                        <ul class="list-none space-y-1 text-amber-900">
-                                            ${inspectionList}
-                                        </ul>
+                                    <!-- Tasks and Inspections Grid -->
+                                    <div class="row g-4 small">
+                                        <!-- Column 1: Contractor Tasks -->
+                                        <div class="col-lg-6">
+                                            <div class="card h-100">
+                                                <div class="card-header bg-light fw-bold text-dark d-flex align-items-center">
+                                                    <span class="fs-5 me-2">👷</span> Công việc Nhà thầu
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled mb-0 text-secondary">
+                                                        ${taskList}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Column 2: Owner Inspection -->
+                                        <div class="col-lg-6">
+                                            <div class="card h-100 border-success-subtle">
+                                                <div class="card-header bg-success-subtle text-success-emphasis fw-bold d-flex align-items-center">
+                                                    <span class="fs-5 me-2">👁️</span> Yêu cầu Nghiệm thu Chủ nhà
+                                                </div>
+                                                <div class="card-body">
+                                                    <ul class="list-unstyled mb-0 text-success-emphasis">
+                                                        ${inspectionList}
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     `;
-                }).join('')}
+    }).join('')}
             </div>
         </div>
     `;
@@ -586,44 +488,47 @@ function renderSchedule() {
 
 
 function renderChecklist() {
-    // Function logic remains the same
+    const parentId = "checklistAccordion";
     return `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-                 <h2 class="text-2xl font-bold text-slate-800 mb-2">Giai đoạn Thô</h2>
-                 <p class="text-slate-600 mb-6 text-sm">Kiểm tra kết cấu và vật tư đầu vào quan trọng.</p>
-                 <div class="space-y-4">
-                    ${projectData.checklist.materials.map(item => createChecklistItem(item)).join('')}
+        <div class="row g-5">
+            <div class="col-md-6">
+                 <h2 class="h4 fw-bold text-dark mb-2">Giai đoạn Thô</h2>
+                 <p class="text-muted mb-4 small">Kiểm tra kết cấu và vật tư đầu vào quan trọng.</p>
+                 <div class="accordion" id="${parentId}Materials">
+                    ${projectData.checklist.materials.map((item, index) => createChecklistItem(item, `${parentId}Materials`, index)).join('')}
                  </div>
             </div>
-            <div>
-                 <h2 class="text-2xl font-bold text-slate-800 mb-2">Giai đoạn Hoàn Thiện</h2>
-                 <p class="text-slate-600 mb-6 text-sm">Kiểm tra thẩm mỹ và công năng sử dụng.</p>
-                 <div class="space-y-4">
-                    ${projectData.checklist.finishing.map(item => createChecklistItem(item)).join('')}
+            <div class="col-md-6">
+                 <h2 class="h4 fw-bold text-dark mb-2">Giai đoạn Hoàn Thiện</h2>
+                 <p class="text-muted mb-4 small">Kiểm tra thẩm mỹ và công năng sử dụng.</p>
+                 <div class="accordion" id="${parentId}Finishing">
+                    ${projectData.checklist.finishing.map((item, index) => createChecklistItem(item, `${parentId}Finishing`, index)).join('')}
                  </div>
             </div>
         </div>
     `;
 }
 
-function createChecklistItem(item) {
-    // Function logic remains the same
-    const id = 'check-' + Math.random().toString(36).substr(2, 9);
+function createChecklistItem(item, parentId, index) {
+    const itemId = `item-${parentId}-${index}`;
+    const collapseId = `collapse-${parentId}-${index}`;
     return `
-        <div class="bg-white rounded-lg border border-slate-200 overflow-hidden">
-            <button onclick="document.getElementById('${id}').classList.toggle('hidden')" class="w-full text-left px-5 py-4 flex justify-between items-center hover:bg-slate-50">
-                <span class="font-semibold text-slate-700">${item.item}</span>
-                <span class="text-slate-400 text-sm">▼</span>
-            </button>
-            <div id="${id}" class="hidden bg-slate-50 px-5 py-4 border-t border-slate-100 text-sm">
-                <div class="mb-2">
-                    <strong class="text-slate-700 block mb-1">Phương pháp kiểm tra:</strong>
-                    <p class="text-slate-600">${item.method}</p>
-                </div>
-                <div>
-                    <strong class="text-slate-700">Dụng cụ cần thiết:</strong>
-                    <span class="bg-white px-2 py-0.5 rounded border border-slate-200 text-xs ml-2 text-slate-500">${item.tools}</span>
+        <div class="accordion-item">
+            <h2 class="accordion-header" id="${itemId}">
+                <button class="accordion-button collapsed fw-semibold" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="false" aria-controls="${collapseId}">
+                    ${item.item}
+                </button>
+            </h2>
+            <div id="${collapseId}" class="accordion-collapse collapse" aria-labelledby="${itemId}" data-bs-parent="#${parentId}">
+                <div class="accordion-body small">
+                    <div class="mb-2">
+                        <strong class="text-dark d-block mb-1">Phương pháp kiểm tra:</strong>
+                        <p class="text-muted mb-0">${item.method}</p>
+                    </div>
+                    <div>
+                        <strong class="text-dark">Dụng cụ cần thiết:</strong>
+                        <span class="badge bg-light text-dark-emphasis border border-light-subtle ms-2">${item.tools}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -631,21 +536,24 @@ function createChecklistItem(item) {
 }
 
 function renderDesign() {
-    // Function logic remains the same
     return `
-        <div class="mb-6">
-            <h2 class="text-2xl font-bold text-slate-800">Thiết Kế & Vật Tư Chọn Lọc</h2>
-            <p class="text-slate-600 mt-2">Các quyết định thiết kế chủ chốt để đạt được phong cách Hiện đại & Tinh tế.</p>
+        <div class="mb-4 text-center">
+            <h2 class="h3 fw-bold text-dark">Thiết Kế & Vật Tư Chọn Lọc</h2>
+            <p class="text-muted mt-2">Các quyết định thiết kế chủ chốt để đạt được phong cách Hiện đại & Tinh tế.</p>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
             ${projectData.design.map(item => `
-                <div class="bg-white p-6 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow group">
-                    <div class="text-4xl mb-4 group-hover:scale-110 transition-transform duration-300 origin-left">${item.icon}</div>
-                    <h3 class="font-bold text-lg text-slate-800 mb-1">${item.title}</h3>
-                    <p class="text-xs font-semibold text-sky-600 uppercase tracking-wide mb-3">${item.loc}</p>
-                    <p class="text-slate-700 text-sm mb-3 font-medium">${item.desc}</p>
-                    <div class="pt-3 border-t border-slate-50">
-                        <p class="text-xs text-slate-500 italic">"${item.reason}"</p>
+                <div class="col">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body p-4">
+                            <div class="fs-1 mb-3">${item.icon}</div>
+                            <h3 class="card-title h5 fw-bold text-dark">${item.title}</h3>
+                            <p class="small fw-semibold text-primary text-uppercase mb-3">${item.loc}</p>
+                            <p class="card-text text-secondary mb-3">${item.desc}</p>
+                            <div class="pt-3 border-top">
+                                <p class="small text-muted fst-italic mb-0">"${item.reason}"</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `).join('')}

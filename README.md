@@ -16,7 +16,7 @@ Trang web được tổ chức thành nhiều tab, mỗi tab tập trung vào m�
 ## 🚀 Công nghệ sử dụng
 
 *   **HTML5**: Cấu trúc cơ bản của trang web.
-*   **TailwindCSS**: Framework CSS để tạo giao diện người dùng hiện đại và đáp ứng nhanh chóng.
+*   **Bootstrap 5**: Framework CSS để tạo giao diện người dùng hiện đại và đáp ứng nhanh chóng.
 *   **JavaScript (ES6)**: Xử lý toàn bộ logic của ứng dụng, bao gồm quản lý trạng thái, render nội dung động, và tương tác người dùng.
 *   **Chart.js**: Thư viện để vẽ biểu đồ phân bổ ngân sách.
 
@@ -25,6 +25,7 @@ Trang web được tổ chức thành nhiều tab, mỗi tab tập trung vào m�
 ```
 /
 ├── index.html      # Tệp HTML chính
+├── data.js         # Chứa toàn bộ dữ liệu của dự án
 ├── script.js       # Toàn bộ mã JavaScript của ứng dụng
 └── README.md       # Tệp tài liệu này
 ```
