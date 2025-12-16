@@ -1,5 +1,6 @@
 const projectData = {
     overview: {
+        startDate: "2026-03-02",
         specs: [
             { label: "Kích thước Đất", value: "5m x 10.165m (Nở hậu 8.48m)" },
             { label: "Địa điểm", value: "TP. Vĩnh Long" },
@@ -76,7 +77,8 @@ const projectData = {
     ],
     schedule: [
         {
-            phase: "A. Chuẩn bị & Pháp lý", weeks: "1-2",
+            phase: "A. Chuẩn bị & Pháp lý",
+            weeks: 2,
             tasks: [
                 "Hoàn thiện hồ sơ Kỹ thuật, xin cấp phép Xây dựng.",
                 "Chuẩn bị mặt bằng, định vị móng, lắp đặt điện nước tạm."
@@ -87,7 +89,8 @@ const projectData = {
             ]
         },
         {
-            phase: "B. Xây Thô & Kết Cấu Móng/Sàn 1", weeks: "3-6",
+            phase: "B. Xây Thô & Kết Cấu Móng/Sàn 1",
+            weeks: 4,
             tasks: [
                 "Đào đất, đổ bê tông lót móng. Lắp dựng cốt thép Móng, Đà Kiềng.",
                 "Đổ bê tông Móng/Đà Kiềng.",
@@ -102,7 +105,8 @@ const projectData = {
             ]
         },
         {
-            phase: "C. Xây Tường & Trát", weeks: "7-13",
+            phase: "C. Xây Tường & Trát",
+            weeks: 7,
             tasks: [
                 "Xây tường bao và tường ngăn phòng (tường 100/200).",
                 "Xây cầu thang bộ. Lắp dựng hệ kết cấu mái (nếu có).",
@@ -119,7 +123,8 @@ const projectData = {
             ]
         },
         {
-            phase: "D. Hoàn Thiện & Lắp Đặt TB", weeks: "14-17",
+            phase: "D. Hoàn Thiện & Lắp Đặt TB",
+            weeks: 4,
             tasks: [
                 "Lắp đặt Gạch Ốp Lát sàn, tường WC.",
                 "Lắp đặt hệ thống cửa, lan can cầu thang, cổng rào.",
@@ -136,7 +141,8 @@ const projectData = {
             ]
         },
         {
-            phase: "E. Bàn Giao", weeks: "18",
+            phase: "E. Bàn Giao",
+            weeks: 1,
             tasks: [
                 "Vệ sinh công nghiệp toàn bộ công trình.",
                 "Sửa chữa các lỗi nhỏ cuối cùng."

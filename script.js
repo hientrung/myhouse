@@ -300,19 +300,51 @@ const renderDetailedEstimate = () => {
 
 function renderSchedule() {
     const groupedSchedule = projectData.schedule;
+    const startDate = new Date(projectData.overview.startDate);
+    
+    // Calculate total weeks
+    const totalWeeks = groupedSchedule.reduce((sum, phase) => sum + phase.weeks, 0);
+    
+    // Calculate project end date
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + (totalWeeks * 7));
+    
+    // Helper function to calculate date from week number
+    const getDateFromWeek = (weekNum) => {
+        const date = new Date(startDate);
+        date.setDate(startDate.getDate() + ((weekNum - 1) * 7));
+        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+    
+    // Calculate start/end weeks for each phase sequentially
+    let currentWeek = 1;
+    const phasesWithWeeks = groupedSchedule.map(phase => {
+        const startWeek = currentWeek;
+        const endWeek = currentWeek + phase.weeks - 1;
+        currentWeek = endWeek + 1;
+        return { ...phase, startWeek, endWeek };
+    });
 
     return `
         <div>
             <div class="mb-5">
-                <h2 class="h3 fw-bold text-dark">Lộ Trình Thi Công 18 Tuần</h2>
-                <p class="text-muted mt-2">Tiến độ được chia thành 5 Giai đoạn chính. Theo dõi công việc của Nhà thầu và yêu cầu nghiệm thu để đảm bảo chất lượng.</p>
+                <h2 class="h3 fw-bold text-dark">Lộ Trình Thi Công ${totalWeeks} Tuần</h2>
+                <p class="text-muted mt-2">Tiến độ được chia thành ${groupedSchedule.length} Giai đoạn chính. Theo dõi công việc của Nhà thầu và yêu cầu nghiệm thu để đảm bảo chất lượng.</p>
+                <div class="alert alert-info d-flex align-items-center gap-3 mt-3">
+                    <span class="fs-5">📅</span>
+                    <div>
+                        <strong>Ngày dự kiến bắt đầu:</strong> ${startDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                        <span class="mx-2">|</span>
+                        <strong>Ngày dự kiến hoàn thành:</strong> ${endDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                    </div>
+                </div>
             </div>
 
             <div class="position-relative ps-4">
                 <!-- Vertical Timeline Line -->
                 <div class="border-start position-absolute top-0 bottom-0" style="left: 1.5rem; z-index: 0;"></div>
                 
-                ${groupedSchedule.map((item, index) => {
+                ${phasesWithWeeks.map((item, index) => {
                     const milestoneNumber = index + 1;
 
                     const taskList = item.tasks.map(task => `
@@ -340,13 +372,15 @@ function renderSchedule() {
                             <!-- Phase Card -->
                             <div class="card shadow-sm" style="margin-left: 1.5rem;">
                                 <div class="card-body p-4">
-                                    <!-- Phase Header -->
-                                    <div class="mb-4 pb-3 border-bottom">
-                                        <span class="small fw-bold text-uppercase text-primary">${item.phase}</span>
-                                        <h3 class="h5 fw-bolder text-dark mt-1 mb-0">Tuần ${item.weeks}</h3>
-                                    </div>
-                                    
-                                    <!-- Tasks and Inspections Grid -->
+                            <!-- Phase Header -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <span class="small fw-bold text-uppercase text-primary">${item.phase}</span>
+                                <h3 class="h5 fw-bolder text-dark mt-1 mb-0">Tuần ${item.startWeek}${item.startWeek !== item.endWeek ? '-' + item.endWeek : ''}</h3>
+                                <p class="small text-muted mb-0 mt-1">
+                                    <span class="me-2">📅</span>
+                                    ${getDateFromWeek(item.startWeek)} - ${getDateFromWeek(item.endWeek)}
+                                </p>
+                            </div>                                    <!-- Tasks and Inspections Grid -->
                                     <div class="row g-4 small">
                                         <!-- Column 1: Contractor Tasks -->
                                         <div class="col-lg-6">
@@ -566,6 +600,7 @@ function initNav() {
 initNav();
 renderContent();
 updateTotalBudgetDisplay();
+updateTotalWeeksDisplay();
 
 // Update total budget display in header
 function updateTotalBudgetDisplay() {
@@ -575,6 +610,16 @@ function updateTotalBudgetDisplay() {
     const roundedBudget = Math.ceil(totalBudget / 10000000) * 10000000;
     const displayText = `💰 ${(roundedBudget / 1000000).toLocaleString('vi-VN')} Triệu VND`;
     const displayElement = document.getElementById('total-budget-display');
+    if (displayElement) {
+        displayElement.textContent = displayText;
+    }
+}
+
+// Update total weeks display in header
+function updateTotalWeeksDisplay() {
+    const totalWeeks = projectData.schedule.reduce((sum, phase) => sum + phase.weeks, 0);
+    const displayText = `⏳ ${totalWeeks} Tuần`;
+    const displayElement = document.getElementById('total-weeks-display');
     if (displayElement) {
         displayElement.textContent = displayText;
     }
