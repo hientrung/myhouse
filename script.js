@@ -132,23 +132,16 @@ function renderOverview() {
                         </h2>
                         <p class="card-text text-muted mb-4">Phân chia khu vực sinh hoạt hợp lý, đảm bảo riêng tư cho các phòng ngủ và không gian mở cho khu vực sinh hoạt chung.</p>
                         
-                        <div class="mb-4">
-                            <h3 class="small text-uppercase fw-bold text-primary mb-3">Tầng Trệt</h3>
-                            <div class="d-flex flex-wrap gap-2">
-                                ${projectData.overview.layout.ground.map(item => `
-                                    <span class="badge bg-secondary-subtle text-secondary-emphasis border border-secondary-subtle">${item}</span>
-                                `).join('')}
+                        ${projectData.overview.layout.map((floor, index) => `
+                            <div class="${index < projectData.overview.layout.length - 1 ? 'mb-4' : ''}">
+                                <h3 class="small text-uppercase fw-bold text-primary mb-3">${floor.floor}</h3>
+                                <div class="d-flex flex-wrap gap-2">
+                                    ${floor.rooms.map(room => `
+                                        <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle">${room}</span>
+                                    `).join('')}
+                                </div>
                             </div>
-                        </div>
-
-                        <div>
-                            <h3 class="small text-uppercase fw-bold text-primary mb-3">Lầu 1 (Tầng Lửng)</h3>
-                            <div class="d-flex flex-wrap gap-2">
-                                ${projectData.overview.layout.mezzanine.map(item => `
-                                    <span class="badge bg-primary-subtle text-primary-emphasis border border-primary-subtle">${item}</span>
-                                `).join('')}
-                            </div>
-                        </div>
+                        `).join('')}
                     </div>
                 </div>
             </div>
@@ -164,7 +157,7 @@ const renderBudget = () => {
         <div class="row g-4">
             <div class="col-12">
                 <h2 class="h3 fw-bold text-dark">Phân Bổ Ngân Sách Tổng</h2>
-                <p class="text-muted">Tổng ngân sách cố định ${formatVND(totalBudget)} được phân bổ chi tiết theo các hạng mục chính.</p>
+                <p class="text-muted">Tổng ngân sách ${formatVND(totalBudget)} được phân bổ chi tiết theo các hạng mục chính.</p>
             </div>
 
             <!-- Chart Section -->

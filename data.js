@@ -4,13 +4,17 @@ const projectData = {
             { label: "Kích thước Đất", value: "5m x 10.165m (Nở hậu 8.48m)" },
             { label: "Địa điểm", value: "TP. Vĩnh Long" },
             { label: "Phong cách", value: "Hiện đại, Tinh tế" },
-            { label: "Ngân sách", value: "900.000.000 VND (Cố định)" },
-            { label: "Thời gian", value: "4.5 tháng (18 tuần)" }
         ],
-        layout: {
-            ground: ["Sân trước & Cổng rào", "Nhà Xe", "Phòng Khách + Bếp (Không gian mở)", "Phòng Ngủ 1", "Tắm & WC"],
-            mezzanine: ["Phòng Ngủ 2", "Phòng Ngủ 3", "Tắm & WC"]
-        }
+        layout: [
+            {
+                floor: "Tầng Trệt",
+                rooms: ["Sân trước & Cổng rào", "Nhà Xe", "Phòng Khách + Bếp (Không gian mở)", "Phòng Ngủ 1", "Tắm & WC"]
+            },
+            {
+                floor: "Tầng Lửng",
+                rooms: ["Phòng Ngủ 2", "Phòng Ngủ 3", "Tắm & WC"]
+            }
+        ]
     },
     estimate: [
         {
