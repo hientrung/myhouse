@@ -5,9 +5,30 @@ let sortColumn = 'id';
 let sortDirection = 'asc';
 let budgetChart;
 
+// --- Cached DOM Elements ---
+const DOM = {
+    appContent: null,
+    navContainer: null,
+    totalBudgetDisplay: null,
+    totalWeeksDisplay: null
+};
+
+// --- Constants ---
+const ANIMATION_DELAY = 0.05;
+const VND_LOCALE = 'vi-VN';
+const DATE_FORMAT_OPTIONS = { day: '2-digit', month: '2-digit', year: 'numeric' };
+
+// --- Utility Functions ---
 // --- Utility Functions ---
 function formatVND(amount) {
-    return amount.toLocaleString('vi-VN') + ' VND';
+    return amount.toLocaleString(VND_LOCALE) + ' VND';
+}
+
+function initDOMCache() {
+    DOM.appContent = document.getElementById('app-content');
+    DOM.navContainer = document.getElementById('nav-container');
+    DOM.totalBudgetDisplay = document.getElementById('total-budget-display');
+    DOM.totalWeeksDisplay = document.getElementById('total-weeks-display');
 }
 
 /**
@@ -74,33 +95,47 @@ function getSortedAndFilteredData() {
 
 // --- Render Functions ---
 function renderContent() {
-    const content = document.getElementById('app-content');
-    content.className = 'fade-in';
+    if (!DOM.appContent) return;
+    
+    DOM.appContent.className = 'fade-in';
 
     switch (currentTab) {
         case 'overview':
-            content.innerHTML = renderOverview();
+            DOM.appContent.innerHTML = renderOverview();
             break;
         case 'budget':
-            content.innerHTML = renderBudget();
+            DOM.appContent.innerHTML = renderBudget();
             initBudgetChart();
             break;
         case 'schedule':
-            content.innerHTML = renderSchedule();
+            DOM.appContent.innerHTML = renderSchedule();
             break;
         case 'checklist':
-            content.innerHTML = renderChecklist();
+            DOM.appContent.innerHTML = renderChecklist();
             break;
         case 'design':
-            content.innerHTML = renderDesign();
+            DOM.appContent.innerHTML = renderDesign();
             break;
         case 'detailed_estimate':
-            content.innerHTML = renderDetailedEstimate();
+            DOM.appContent.innerHTML = renderDetailedEstimate();
             break;
     }
 }
 
 function renderOverview() {
+    // Calculate total weeks and dates
+    const startDate = new Date(projectData.overview.startDate);
+    const totalWeeks = projectData.schedule.reduce((sum, phase) => sum + phase.weeks, 0);
+    const endDate = new Date(startDate);
+    endDate.setDate(startDate.getDate() + (totalWeeks * 7));
+    
+    // Calculate total budget
+    const calculatedBudget = getCalculatedBudget();
+    const totalBudget = calculatedBudget.reduce((sum, item) => sum + item.amount, 0);
+    const roundedBudget = Math.ceil(totalBudget / 10000000) * 10000000;
+    
+    const formatDate = (date) => date.toLocaleDateString(VND_LOCALE, DATE_FORMAT_OPTIONS);
+    
     return `
         <div class="row g-4">
             <!-- Project Specs -->
@@ -118,6 +153,14 @@ function renderOverview() {
                                     <span class="fw-semibold text-dark text-end">${spec.value}</span>
                                 </div>
                             `).join('')}
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                <span class="text-muted">Thời gian dự kiến</span>
+                                <span class="fw-semibold text-dark text-end">${formatDate(startDate)} - ${formatDate(endDate)}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center border-bottom pb-2">
+                                <span class="text-muted">Tổng dự toán</span>
+                                <span class="fw-semibold text-primary text-end">${(roundedBudget / 1000000).toLocaleString('vi-VN')} Triệu VND</span>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -313,7 +356,7 @@ function renderSchedule() {
     const getDateFromWeek = (weekNum) => {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + ((weekNum - 1) * 7));
-        return date.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return date.toLocaleDateString(VND_LOCALE, DATE_FORMAT_OPTIONS);
     };
     
     // Calculate start/end weeks for each phase sequentially
@@ -325,6 +368,8 @@ function renderSchedule() {
         return { ...phase, startWeek, endWeek };
     });
 
+    const formatDate = (date) => date.toLocaleDateString(VND_LOCALE, DATE_FORMAT_OPTIONS);
+
     return `
         <div>
             <div class="mb-5">
@@ -333,9 +378,9 @@ function renderSchedule() {
                 <div class="alert alert-info d-flex align-items-center gap-3 mt-3">
                     <span class="fs-5">📅</span>
                     <div>
-                        <strong>Ngày dự kiến bắt đầu:</strong> ${startDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                        <strong>Ngày dự kiến bắt đầu:</strong> ${formatDate(startDate)}
                         <span class="mx-2">|</span>
-                        <strong>Ngày dự kiến hoàn thành:</strong> ${endDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' })}
+                        <strong>Ngày dự kiến hoàn thành:</strong> ${formatDate(endDate)}
                     </div>
                 </div>
             </div>
@@ -362,7 +407,7 @@ function renderSchedule() {
                     `).join('');
 
                     return `
-                        <div class="position-relative mb-5 fade-in" style="animation-delay: ${index * 0.05}s">
+                        <div class="position-relative mb-5 fade-in" style="animation-delay: ${index * ANIMATION_DELAY}s">
                             
                             <!-- Phase Dot -->
                             <div class="position-absolute top-0 start-0 translate-middle d-flex align-items-center justify-content-center fw-bold text-white bg-primary rounded-circle border border-4 border-white shadow-sm" style="width: 2.5rem; height: 2.5rem; z-index: 1;">
@@ -545,22 +590,25 @@ function switchTab(tabId) {
 }
 
 function updateActiveTab() {
-    document.querySelectorAll('#nav-container .nav-link').forEach(btn => {
+    if (!DOM.navContainer) return;
+    
+    const navLinks = DOM.navContainer.querySelectorAll('.nav-link');
+    navLinks.forEach(btn => {
         const btnTabId = btn.getAttribute('onclick').match(/'([^']+)'/)[1];
-        if (btnTabId === currentTab) {
-            btn.classList.add('active', 'text-primary', 'border-primary');
-            btn.classList.remove('border-transparent', 'text-muted');
-        } else {
-            btn.classList.remove('active', 'text-primary', 'border-primary');
-            btn.classList.add('border-transparent', 'text-muted');
-        }
+        const isActive = btnTabId === currentTab;
+        btn.classList.toggle('active', isActive);
+        btn.classList.toggle('text-primary', isActive);
+        btn.classList.toggle('border-primary', isActive);
+        btn.classList.toggle('border-transparent', !isActive);
+        btn.classList.toggle('text-muted', !isActive);
     });
 }
 
 function filterEstimate(category) {
     currentFilter = category;
-    const content = document.getElementById('app-content');
-    content.innerHTML = renderDetailedEstimate();
+    if (DOM.appContent) {
+        DOM.appContent.innerHTML = renderDetailedEstimate();
+    }
 }
 
 function sortEstimate(column) {
@@ -570,8 +618,9 @@ function sortEstimate(column) {
         sortColumn = column;
         sortDirection = 'asc';
     }
-    const content = document.getElementById('app-content');
-    content.innerHTML = renderDetailedEstimate();
+    if (DOM.appContent) {
+        DOM.appContent.innerHTML = renderDetailedEstimate();
+    }
 }
 
 // --- Navigation Logic ---
@@ -585,8 +634,9 @@ const navItems = [
 ];
 
 function initNav() {
-    const container = document.getElementById('nav-container');
-    container.innerHTML = navItems.map(item => `
+    if (!DOM.navContainer) return;
+    
+    DOM.navContainer.innerHTML = navItems.map(item => `
         <button 
             onclick="switchTab('${item.id}')"
             class="nav-link text-nowrap py-3 px-2 border-bottom border-2 ${currentTab === item.id ? 'active text-primary border-primary' : 'border-transparent text-muted'}"
@@ -596,31 +646,37 @@ function initNav() {
     `).join('');
 }
 
-// --- Initialization ---
-initNav();
-renderContent();
-updateTotalBudgetDisplay();
-updateTotalWeeksDisplay();
-
 // Update total budget display in header
 function updateTotalBudgetDisplay() {
+    if (!DOM.totalBudgetDisplay) return;
+    
     const calculatedBudget = getCalculatedBudget();
     const totalBudget = calculatedBudget.reduce((sum, item) => sum + item.amount, 0);
     // Round up to nearest 10 million
     const roundedBudget = Math.ceil(totalBudget / 10000000) * 10000000;
-    const displayText = `💰 ${(roundedBudget / 1000000).toLocaleString('vi-VN')} Triệu VND`;
-    const displayElement = document.getElementById('total-budget-display');
-    if (displayElement) {
-        displayElement.textContent = displayText;
-    }
+    DOM.totalBudgetDisplay.textContent = `💰 ${(roundedBudget / 1000000).toLocaleString(VND_LOCALE)} Triệu VND`;
 }
 
 // Update total weeks display in header
 function updateTotalWeeksDisplay() {
+    if (!DOM.totalWeeksDisplay) return;
+    
     const totalWeeks = projectData.schedule.reduce((sum, phase) => sum + phase.weeks, 0);
-    const displayText = `⏳ ${totalWeeks} Tuần`;
-    const displayElement = document.getElementById('total-weeks-display');
-    if (displayElement) {
-        displayElement.textContent = displayText;
-    }
+    DOM.totalWeeksDisplay.textContent = `⏳ ${totalWeeks} Tuần`;
+}
+
+// --- Initialization ---
+function init() {
+    initDOMCache();
+    initNav();
+    renderContent();
+    updateTotalBudgetDisplay();
+    updateTotalWeeksDisplay();
+}
+
+// Run initialization when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
 }
